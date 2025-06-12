@@ -5,6 +5,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { LoggerModule } from 'nestjs-pino';
 import * as pino from 'pino';
 import { ConfigModule } from '@nestjs/config';
+import { AppConfigService } from './shared/configuration/app-config.service';
 
 @Module({
   imports: [
@@ -35,6 +36,6 @@ import { ConfigModule } from '@nestjs/config';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AppConfigService],
 })
 export class AppModule {}
