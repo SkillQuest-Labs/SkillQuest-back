@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum SkillStatus {
+  COMPLETED
+  IN_PROGRESS
+  NOT_STARTED
+}
+
+enum UserRole {
+  MENTOR
+  APPRENTICE
+}
+
+model User {
+  id         String    @id @default(uuid())
+  email      String    @unique
+  username   String
+  password   String
+  role       UserRole
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  skills     Skill[] 
+  quests     Quest[]
+}
+
+model Skill {
+  id                   String      @id @default(uuid())
+  title                String
+  description          String
+  difficulty           Difficulty
+  completionTime       DateTime
+  status               SkillStatus
+  userId               String
+  user                 User        @relation(fields: [userId], references: [id]) 
+  quests               Quest[]
+}
+
+model Quest {
+  id                   String      @id @default(uuid())
+  title                String
+  description          String
+  difficulty           Difficulty
+  degree               Int
+  isUnlocked           Boolean
+  isCompleted          Boolean
+  isSubSkill           Boolean
+  completionTime       DateTime
+  positionX            Float
+  positionY            Float
+  
+  skillId              String
+  skill                Skill       @relation(fields: [skillId], references: [id])
+
+  userId               String
+  user                 User        @relation(fields: [userId], references: [id])
+
+  parentRelations QuestRelation[] @relation("ChildQuest")
+  childRelations  QuestRelation[] @relation("ParentQuest")
+}
+
+model QuestRelation  {
+  id              String @id @default(uuid())
+  parentQuestId   String
+  childQuestId    String
+  parentQuest     Quest  @relation("ParentQuest", fields: [parentQuestId], references: [id])
+  childQuest      Quest  @relation("ChildQuest", fields: [childQuestId], references: [id])
+}
+
