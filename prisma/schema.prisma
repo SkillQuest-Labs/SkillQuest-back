@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
 enum Difficulty {
@@ -14,68 +14,158 @@ enum Difficulty {
 }
 
 enum SkillStatus {
-  COMPLETED
   IN_PROGRESS
+  COMPLETED
   NOT_STARTED
 }
 
-enum UserRole {
-  MENTOR
-  APPRENTICE
+enum ChallengeStatus {
+  IN_PROGRESS
+  VALIDED
+  EXPIRED
 }
 
 model User {
-  id         String    @id @default(uuid())
-  email      String    @unique
+  id         String   @id @default(uuid())
+  email      String
   username   String
   password   String
-  role       UserRole
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  skills     Skill[] 
-  quests     Quest[]
+  role       String
+  createdAt  DateTime
+  updatedAt  DateTime
+
+  skills         Skill[]
+  userTrophies   UserTrophy[]
+  userChallenges UserChallenge[]
+  userStats      UserStats?
+  workSessions   WorkSession[]
+  avatar         Avatar?
 }
 
 model Skill {
-  id                   String      @id @default(uuid())
-  title                String
-  description          String
-  difficulty           Difficulty
-  completionTime       DateTime
-  status               SkillStatus
-  userId               String
-  user                 User        @relation(fields: [userId], references: [id]) 
-  quests               Quest[]
+  id                  String   @id @default(uuid())
+  title               String
+  description         String?
+  difficulty          Difficulty
+  completionTime DateTime?
+  status              SkillStatus
+  userId              String
+
+  user   User   @relation(fields: [userId], references: [id])
+  quests Quest[]
 }
 
 model Quest {
-  id                   String      @id @default(uuid())
-  title                String
-  description          String
-  difficulty           Difficulty
-  degree               Int
-  isUnlocked           Boolean
-  isCompleted          Boolean
-  isSubSkill           Boolean
-  completionTime       DateTime
-  positionX            Float
-  positionY            Float
-  
-  skillId              String
-  skill                Skill       @relation(fields: [skillId], references: [id])
+  id                 String      @id @default(uuid())
+  title              String
+  description        String?
+  difficulty         Difficulty
+  degree             Int?
+  isUnlocked         Boolean
+  isCompleted        Boolean
+  isSubSkill         Boolean
+  completionTime DateTime?
+  positionX          Float
+  positionY          Float  
+  skillId            String
 
-  userId               String
-  user                 User        @relation(fields: [userId], references: [id])
-
-  parentRelations QuestRelation[] @relation("ChildQuest")
-  childRelations  QuestRelation[] @relation("ParentQuest")
+  skill       Skill            @relation(fields: [skillId], references: [id])
+  parentRelations QuestRelation[]  @relation("ChildQuest")
+  childRelations  QuestRelation[]  @relation("ParentQuest")
+  workSessionLinks WorkSessionQuest[]
 }
 
-model QuestRelation  {
-  id              String @id @default(uuid())
-  parentQuestId   String
-  childQuestId    String
-  parentQuest     Quest  @relation("ParentQuest", fields: [parentQuestId], references: [id])
-  childQuest      Quest  @relation("ChildQuest", fields: [childQuestId], references: [id])
+model QuestRelation {
+  id            String @id @default(uuid())
+  parentQuestId String
+  childQuestId  String
+
+  parentQuest Quest @relation("ParentQuest", fields: [parentQuestId], references: [id])
+  childQuest  Quest @relation("ChildQuest", fields: [childQuestId], references: [id])
 }
 
+model Trophy {
+  id                  String   @id @default(uuid())
+  title               String
+  description         String
+  completionCondition String
+  xpReward            Int
+  rpReward            Int
+  createdAt           DateTime
+
+  userTrophies UserTrophy[]
+}
+
+model UserTrophy {
+  id        String   @id @default(uuid())
+  awardedAt DateTime
+  trophyId  String
+  userId    String?
+
+  trophy Trophy @relation(fields: [trophyId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id])
+}
+
+model Challenge {
+  id        String   @id @default(uuid())
+  title     String
+  xpReward  Int
+  rpReward  Int
+  createdAt DateTime
+  expiresAt DateTime
+
+  userChallenges UserChallenge[]
+}
+
+model UserChallenge {
+  id          String   @id @default(uuid())
+  status      ChallengeStatus
+  challengeId String
+  userId      String?
+
+  challenge Challenge @relation(fields: [challengeId], references: [id])
+  user      User?      @relation(fields: [userId], references: [id])
+}
+
+model UserStats {
+  id               String   @id @default(uuid())
+  xp               Int?
+  rp               Int?
+  level            Int @default(1)
+  totalXp          Int?
+  loginStreak      Int?
+  maxSessionStreak Int?
+  userId           String @unique
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model WorkSession {
+  id              String   @id @default(uuid())
+  date            DateTime
+  duration        DateTime
+  createdAt       DateTime
+  difficultyScore Int?
+  focusLevel      Int?
+  userId          String
+
+  user      User               @relation(fields: [userId], references: [id])
+  quests    WorkSessionQuest[]
+}
+
+model WorkSessionQuest {
+  id             String @id @default(uuid())
+  questId        String
+  workSessionId  String
+
+  quest        Quest?       @relation(fields: [questId], references: [id])
+  workSession  WorkSession? @relation(fields: [workSessionId], references: [id])
+}
+
+model Avatar {
+  id       String @id @default(uuid())
+  urlImage String?
+  userId   String? @unique
+
+  user User? @relation(fields: [userId], references: [id])
+}
