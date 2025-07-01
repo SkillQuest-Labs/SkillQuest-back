@@ -16,7 +16,10 @@ export class QuestService {
         });
       }),
     );
-    return createdQuests;
+    return {
+      quests: createdQuests,
+      total: createdQuests.length,
+    };
   }
 
   async getAllQuestsBySkillId(skillId: string) {
