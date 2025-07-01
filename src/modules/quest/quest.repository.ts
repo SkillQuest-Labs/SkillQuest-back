@@ -33,9 +33,9 @@ export class QuestRepository {
     return quest;
   }
 
-  async update(skillId: string, quest: Prisma.QuestUpdateInput) {
+  async update(questId: string, quest: Prisma.QuestUpdateInput) {
     const updatedQuest = await this.prisma.quest.update({
-      where: { id: skillId },
+      where: { id: questId },
       data: quest,
     });
     return updatedQuest;
@@ -51,5 +51,4 @@ export class QuestRepository {
   async deleteByFilter(where: Prisma.QuestWhereInput) {
     return this.prisma.quest.deleteMany({ where });
   }
-
 }

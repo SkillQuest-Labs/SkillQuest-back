@@ -25,11 +25,10 @@ export class QuestService {
     return { quests, total };
   }
 
-  async updateQuest(questData: UpdateQuestDto[]) {
+  async updateQuest(skillId: string, questData: UpdateQuestDto[]) {
     if (!questData.length) {
       return;
     }
-    const skillId = questData[0].skillId;
 
     const { quests: existingQuests } =
       await this.questRepository.findAllBySkillId(skillId);
@@ -40,10 +39,10 @@ export class QuestService {
     const toCreate = questData.filter((q) => !q.id || !existingIds.has(q.id)); // filter for quests that do not exist in the database
 
     // update existing quests
-    const updatePromises = toUpdate.map((q) =>
-      this.questRepository.update(skillId, {
-        ...q,
-        skill: { connect: { id: q.skillId } },
+    const updatePromises = toUpdate.map(({ id, ...rest }) =>
+      this.questRepository.update(id, {
+        ...rest,
+        skill: { connect: { id: skillId } },
       }),
     );
 
@@ -51,7 +50,7 @@ export class QuestService {
     const createPromises = toCreate.map((q) =>
       this.questRepository.create({
         ...q,
-        skill: { connect: { id: q.skillId } },
+        skill: { connect: { id: skillId } },
       }),
     );
 
@@ -66,8 +65,8 @@ export class QuestService {
     return await this.questRepository.findAllBySkillId(skillId);
   }
 
-  async deleteAllQuests(userId: string) {
-    const deletedQuests = await this.questRepository.deleteAll(userId);
+  async deleteAllQuests(skillId: string) {
+    const deletedQuests = await this.questRepository.deleteAll(skillId);
     return deletedQuests;
   }
 }

@@ -48,7 +48,4 @@ export class CreateQuestDto {
 
   @IsString()
   skillId: string;
-
-  @IsString()
-  userId: string;
 }

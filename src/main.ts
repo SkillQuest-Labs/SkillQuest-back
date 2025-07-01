@@ -24,6 +24,7 @@ async function bootstrap() {
   await app.listen(port);
   logger.log(`Skill Quest API v${version} started`);
   logger.log(`Listening on port ${port}`);
+  logger.log(`API URL: http://localhost:${port}`);
 }
 bootstrap();
 

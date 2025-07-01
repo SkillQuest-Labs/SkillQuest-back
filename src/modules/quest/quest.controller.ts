@@ -1,25 +1,53 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Put,
+  Body,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { QuestService } from './quest.service';
 import { CreateQuestDto } from './dto/create-quest.dto';
 import { UpdateQuestDto } from './dto/update-quest.dto';
 
-@Injectable()
+@Controller('quests')
 export class QuestController {
   constructor(private readonly questService: QuestService) {}
 
-  async createQuest(questData: CreateQuestDto[]) {
+  @Get('health')
+  async health() {
+    return { status: 'ok' };
+  }
+
+  @Post()
+  async createQuest(@Body() questData: CreateQuestDto[]) {
     const createdQuests = await this.questService.createQuest(questData);
     return createdQuests;
   }
 
-  async getAllQuestsBySkillId(skillId: string) {
+  @Get(':skillId')
+  async getAllQuestsBySkillId(@Param('skillId') skillId: string) {
     const { quests, total } =
       await this.questService.getAllQuestsBySkillId(skillId);
     return { quests, total };
   }
 
-  async updateQuest(questData: UpdateQuestDto[]) {
-    const updatedQuest = await this.questService.updateQuest(questData);
+  @Put(':skillId')
+  async updateQuest(
+    @Param('skillId') skillId: string,
+    @Body() questData: UpdateQuestDto[],
+  ) {
+    const updatedQuest = await this.questService.updateQuest(
+      skillId,
+      questData,
+    );
     return updatedQuest;
+  }
+
+  @Delete(':skillId')
+  async deleteAllQuestsBySkillId(@Param('skillId') skillId: string) {
+    const deletedQuests = await this.questService.deleteAllQuests(skillId);
+    return deletedQuests;
   }
 }
