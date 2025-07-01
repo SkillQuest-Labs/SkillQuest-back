@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { QuestRepository } from './quest.repository';
 import { CreateQuestDto } from './dto/create-quest.dto';
 import { UpdateQuestDto } from './dto/update-quest.dto';
-import e from 'express';
 
 @Injectable()
 export class QuestService {
@@ -10,11 +9,10 @@ export class QuestService {
 
   async createQuest(questData: CreateQuestDto[]) {
     const createdQuests = await Promise.all(
-      questData.map(({ skillId, userId, ...rest }) => {
+      questData.map(({ skillId, ...rest }) => {
         return this.questRepository.create({
           ...rest,
           skill: { connect: { id: skillId } }, // to link to the existing skill
-          user: { connect: { id: userId } }, // to link to the existing user
         });
       }),
     );
@@ -35,7 +33,6 @@ export class QuestService {
           await this.questRepository.update(userId, {
             ...quest,
             skill: { connect: { id: quest.skillId } },
-            user: { connect: { id: userId } },
           });
         }
       }
