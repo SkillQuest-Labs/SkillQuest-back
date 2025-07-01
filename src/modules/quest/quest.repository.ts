@@ -42,10 +42,21 @@ export class QuestRepository {
   }
 
   async deleteAll(skillId: string) {
-    const deletedQuests = await this.prisma.quest.deleteMany({
-      where: { skillId },
-    });
-    return deletedQuests;
+    // Get the skill name before deleting
+    const [skill, deletedQuests] = await this.prisma.$transaction([
+      this.prisma.skill.findUnique({
+        where: { id: skillId },
+        select: { title: true },
+      }),
+      this.prisma.quest.deleteMany({
+        where: { skillId },
+      }),
+    ]);
+
+    return {
+      ...deletedQuests,
+      skillName: skill?.title || null,
+    };
   }
 
   async deleteByFilter(where: Prisma.QuestWhereInput) {

@@ -67,6 +67,9 @@ export class QuestService {
 
   async deleteAllQuests(skillId: string) {
     const deletedQuests = await this.questRepository.deleteAll(skillId);
-    return deletedQuests;
+    return {
+      total: deletedQuests.count,
+      message: `All quests for skill "${deletedQuests.skillName}" have been successfully deleted.`,
+    };
   }
 }
