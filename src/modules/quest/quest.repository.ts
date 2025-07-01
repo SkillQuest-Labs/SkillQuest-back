@@ -13,13 +13,13 @@ export class QuestRepository {
     return newQuest;
   }
 
-  async findAllByUserId(userId: string) {
+  async findAllBySkillId(skillId: string) {
     const [quests, total] = await this.prisma.$transaction([
       this.prisma.quest.findMany({
-        where: { userId },
+        where: { skillId },
       }),
       this.prisma.quest.count({
-        where: { userId },
+        where: { skillId },
       }),
     ]);
 
@@ -33,18 +33,23 @@ export class QuestRepository {
     return quest;
   }
 
-  async update(userId: string, quest: Prisma.QuestUpdateInput) {
+  async update(skillId: string, quest: Prisma.QuestUpdateInput) {
     const updatedQuest = await this.prisma.quest.update({
-      where: { id: userId },
+      where: { id: skillId },
       data: quest,
     });
     return updatedQuest;
   }
 
-  async deleteAll(userId: string) {
+  async deleteAll(skillId: string) {
     const deletedQuests = await this.prisma.quest.deleteMany({
-      where: { userId },
+      where: { skillId },
     });
     return deletedQuests;
   }
+
+  async deleteByFilter(where: Prisma.QuestWhereInput) {
+    return this.prisma.quest.deleteMany({ where });
+  }
+
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { QuestService } from './quest.service';
 import { CreateQuestDto } from './dto/create-quest.dto';
+import { UpdateQuestDto } from './dto/update-quest.dto';
 
 @Injectable()
 export class QuestController {
@@ -11,14 +12,14 @@ export class QuestController {
     return createdQuests;
   }
 
-  async getAllQuestsByUserId(userId: string) {
+  async getAllQuestsBySkillId(skillId: string) {
     const { quests, total } =
-      await this.questService.getAllQuestsByUserId(userId);
+      await this.questService.getAllQuestsBySkillId(skillId);
     return { quests, total };
   }
 
-  async updateQuest(userId: string, questData: CreateQuestDto) {
-    const updatedQuest = await this.questService.updateQuest(userId, questData);
+  async updateQuest(questData: UpdateQuestDto[]) {
+    const updatedQuest = await this.questService.updateQuest(questData);
     return updatedQuest;
   }
 }
