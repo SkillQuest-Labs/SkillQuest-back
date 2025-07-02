@@ -1,3 +1,4 @@
+import { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from 'nestjs-pino';
@@ -14,6 +15,10 @@ async function bootstrap() {
   app.enableCors({ maxAge: 86400 });
   app.use(helmet()); // Use Helmet for security headers
 
+  // Set global prefix for all routes
+  const globalPrefix = 'api';
+  app.setGlobalPrefix(globalPrefix);
+
   const packageBuffer = readFileSync('./package.json') as any;
   const version = JSON.parse(packageBuffer).version;
 
@@ -23,7 +28,9 @@ async function bootstrap() {
 
   await app.listen(port);
   logger.log(`Skill Quest API v${version} started`);
-  logger.log(`Listening on port ${port}`);
+
+  const fullUrl = getAppurl(app, port, globalPrefix);
+  logger.log(`Listening to ${fullUrl}`);
 }
 bootstrap();
 
@@ -43,4 +50,16 @@ function normalizePort(val: number | string): number | string {
   }
 
   throw new Error(`Port "${val}" is invalid.`);
+}
+
+function getAppurl(
+  app: INestApplication,
+  port: string | number,
+  globalPrefix: string,
+): string {
+  let baseUrl = app.getHttpServer().address().address;
+  if (baseUrl === '0.0.0.0' || baseUrl === '::') {
+    baseUrl = 'localhost';
+  }
+  return `http://${baseUrl}:${port}/${globalPrefix}`;
 }

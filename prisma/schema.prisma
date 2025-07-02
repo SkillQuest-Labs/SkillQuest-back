@@ -19,11 +19,18 @@ enum SkillStatus {
   NOT_STARTED
 }
 
+enum QuestStatus {
+  LOCKED
+  UNLOCKED
+  COMPLETED
+}
+
 enum ChallengeStatus {
   IN_PROGRESS
   VALIDED
   EXPIRED
 }
+
 
 model User {
   id         String   @id @default(uuid())
@@ -57,16 +64,16 @@ model Skill {
 
 model Quest {
   id                 String      @id @default(uuid())
+  questId            String
   title              String
   description        String?
   difficulty         Difficulty
+  xp                 Int
   degree             Int?
-  isUnlocked         Boolean
-  isCompleted        Boolean
+  status             QuestStatus @default(LOCKED)
   isSubSkill         Boolean
-  completionTime DateTime?
-  positionX          Float
-  positionY          Float  
+  completionTime     DateTime?
+  position           Json  
   skillId            String
 
   skill       Skill            @relation(fields: [skillId], references: [id])

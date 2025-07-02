@@ -6,6 +6,8 @@ import { LoggerModule } from 'nestjs-pino';
 import * as pino from 'pino';
 import { ConfigModule } from '@nestjs/config';
 import { AppConfigService } from './shared/configuration/app-config.service';
+import { PrismaModule } from './database/prisma/prisma.module';
+import { QuestModule } from './modules/quest/quest.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { AppConfigService } from './shared/configuration/app-config.service';
       },
     }),
     AuthModule,
+    PrismaModule,
+    QuestModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppConfigService],
