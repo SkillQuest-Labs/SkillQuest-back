@@ -68,6 +68,7 @@ model Quest {
   title              String
   description        String?
   difficulty         Difficulty
+  xp                 Int
   degree             Int?
   status             QuestStatus @default(LOCKED)
   isSubSkill         Boolean
