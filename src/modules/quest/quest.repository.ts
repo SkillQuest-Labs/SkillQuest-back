@@ -34,11 +34,10 @@ export class QuestRepository {
   }
 
   async update(questId: string, quest: Prisma.QuestUpdateInput) {
-    const updatedQuest = await this.prisma.quest.update({
+    return this.prisma.quest.update({
       where: { id: questId },
       data: quest,
     });
-    return updatedQuest;
   }
 
   async deleteAll(skillId: string) {
