@@ -4,15 +4,19 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
 } from 'class-validator';
-import { Difficulty } from '@prisma/client';
+import { Difficulty, QuestStatus } from '@prisma/client';
 
 export class CreateQuestDto {
   @IsOptional()
   @IsString()
   id?: string;
+
+  @IsString()
+  questId: string;
 
   @IsString()
   @IsNotEmpty()
@@ -28,11 +32,11 @@ export class CreateQuestDto {
   @IsNumber()
   degree: number;
 
-  @IsBoolean()
-  isUnlocked: boolean;
+  @IsNumber()
+  xp: number;
 
-  @IsBoolean()
-  isCompleted: boolean;
+  @IsEnum(QuestStatus)
+  status: QuestStatus;
 
   @IsBoolean()
   isSubSkill: boolean;
@@ -40,11 +44,8 @@ export class CreateQuestDto {
   @IsDateString()
   completionTime: string;
 
-  @IsNumber()
-  positionX: number;
-
-  @IsNumber()
-  positionY: number;
+  @IsObject()
+  position: { x: number; y: number };
 
   @IsString()
   skillId: string;

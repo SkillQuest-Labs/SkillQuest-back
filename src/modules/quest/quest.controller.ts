@@ -33,15 +33,9 @@ export class QuestController {
     return { quests, total };
   }
 
-  @Put(':skillId')
-  async updateQuest(
-    @Param('skillId') skillId: string,
-    @Body() questData: UpdateQuestDto[],
-  ) {
-    const updatedQuest = await this.questService.updateQuest(
-      skillId,
-      questData,
-    );
+  @Put()
+  async updateQuest(@Body() questData: UpdateQuestDto[]) {
+    const updatedQuest = await this.questService.updateQuest(questData);
     return updatedQuest;
   }
 
