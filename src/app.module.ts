@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppConfigService } from './shared/configuration/app-config.service';
 import { PrismaModule } from './database/prisma/prisma.module';
 import { QuestModule } from './modules/quest/quest.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { QuestModule } from './modules/quest/quest.module';
     AuthModule,
     PrismaModule,
     QuestModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppConfigService],
