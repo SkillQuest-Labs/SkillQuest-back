@@ -5,8 +5,8 @@ import { UserRepository } from './user.repository';
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async getUserHUDProfile(userId: string) {
-    const user = await this.userRepository.findUserProfileById(userId);
+  async getUserHudProfile(userId: string) {
+    const user = await this.userRepository.find(userId);
 
     if (!user) {
       throw new Error('User not found');
