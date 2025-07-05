@@ -39,6 +39,12 @@ export class QuestController {
     return updatedQuest;
   }
 
+  @Delete()
+  async deleteQuest(@Body() quest: { id: string; questId?: string }[]) {
+    const deletedQuests = await this.questService.deleteQuest(quest);
+    return deletedQuests;
+  }
+
   @Delete(':skillId')
   async deleteAllQuestsBySkillId(@Param('skillId') skillId: string) {
     const deletedQuests = await this.questService.deleteAllQuests(skillId);
