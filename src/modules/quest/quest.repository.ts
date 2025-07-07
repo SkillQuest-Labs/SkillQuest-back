@@ -40,6 +40,13 @@ export class QuestRepository {
     });
   }
 
+  async delete(questId: string) {
+    const deletedQuest = await this.prisma.quest.delete({
+      where: { id: questId },
+    });
+    return deletedQuest;
+  }
+
   async deleteAll(skillId: string) {
     // Get the skill name before deleting
     const [skill, deletedQuests] = await this.prisma.$transaction([
