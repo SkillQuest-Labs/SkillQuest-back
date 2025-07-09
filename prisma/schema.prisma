@@ -17,6 +17,7 @@ enum SkillStatus {
   IN_PROGRESS
   COMPLETED
   NOT_STARTED
+  DRAFT
 }
 
 enum QuestStatus {
@@ -55,7 +56,7 @@ model Skill {
   description         String?
   difficulty          Difficulty
   completionTime DateTime?
-  status              SkillStatus
+  status              SkillStatus @default(DRAFT)
   userId              String
 
   user   User   @relation(fields: [userId], references: [id])

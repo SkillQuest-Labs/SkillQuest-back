@@ -9,6 +9,7 @@ import { AppConfigService } from './shared/configuration/app-config.service';
 import { PrismaModule } from './database/prisma/prisma.module';
 import { QuestModule } from './modules/quest/quest.module';
 import { UserModule } from './modules/user/user.module';
+import { SkillModule } from './modules/skill/skill.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { UserModule } from './modules/user/user.module';
     PrismaModule,
     QuestModule,
     UserModule,
+    SkillModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppConfigService],
