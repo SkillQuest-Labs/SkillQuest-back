@@ -6,6 +6,7 @@ import {
   Body,
   Param,
   Delete,
+  ParseArrayPipe,
 } from '@nestjs/common';
 import { QuestService } from './quest.service';
 import { CreateQuestDto } from './dto/create-quest.dto';
@@ -21,7 +22,10 @@ export class QuestController {
   }
 
   @Post()
-  async createQuest(@Body() questData: CreateQuestDto[]) {
+  async createQuest(
+    @Body(new ParseArrayPipe({ items: CreateQuestDto }))
+    questData: CreateQuestDto[],
+  ) {
     const createdQuests = await this.questService.createQuest(questData);
     return createdQuests;
   }
@@ -34,15 +38,12 @@ export class QuestController {
   }
 
   @Put()
-  async updateQuest(@Body() questData: UpdateQuestDto[]) {
+  async updateQuest(
+    @Body(new ParseArrayPipe({ items: UpdateQuestDto }))
+    questData: UpdateQuestDto[],
+  ) {
     const updatedQuest = await this.questService.updateQuest(questData);
     return updatedQuest;
-  }
-
-  @Delete()
-  async deleteQuest(@Body() quest: { id: string; questId?: string }[]) {
-    const deletedQuests = await this.questService.deleteQuest(quest);
-    return deletedQuests;
   }
 
   @Delete(':skillId')
