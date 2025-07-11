@@ -30,7 +30,8 @@ export class CreateQuestDto {
   difficulty: Difficulty;
 
   @IsNumber()
-  degree: number;
+  @IsOptional()
+  degree?: number;
 
   @IsNumber()
   xp: number;
