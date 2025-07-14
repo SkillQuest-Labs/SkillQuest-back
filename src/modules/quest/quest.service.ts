@@ -44,16 +44,11 @@ export class QuestService {
   }
 
   async deleteQuest(quest: { id: string; questId?: string }[]) {
-    const deletedQuests = await Promise.all(
+    return await Promise.all(
       quest.map(({ id }) => {
         return this.questRepository.delete(id);
       }),
     );
-
-    return {
-      quests: deletedQuests,
-      total: deletedQuests.length,
-    };
   }
 
   async deleteAllQuests(skillId: string) {

@@ -5,6 +5,7 @@ import { Logger } from 'nestjs-pino';
 import helmet from 'helmet';
 import { readFileSync } from 'fs';
 import { AppConfigService } from './shared/configuration/app-config.service';
+import { ValidationPipe } from './shared/pipe/validation.pipe';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -14,6 +15,8 @@ async function bootstrap() {
 
   app.enableCors({ maxAge: 86400 });
   app.use(helmet()); // Use Helmet for security headers
+
+  app.useGlobalPipes(new ValidationPipe());
 
   // Set global prefix for all routes
   const globalPrefix = 'api';
