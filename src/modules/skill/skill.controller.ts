@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { SkillService } from './skill.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
+import { UpdateSkillDto } from './dto/update-skill.dto';
 
 @Controller('skills')
 export class SkillController {
@@ -31,10 +32,7 @@ export class SkillController {
   }
 
   @Put(':id')
-  async updateSkill(
-    @Param('id') id: string,
-    @Body() data: Partial<CreateSkillDto>,
-  ) {
+  async updateSkill(@Param('id') id: string, @Body() data: UpdateSkillDto) {
     return this.skillService.updateSkill(id, data);
   }
 
