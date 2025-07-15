@@ -2,6 +2,13 @@ import { IsString, IsNotEmpty, IsOptional, IsEnum } from 'class-validator';
 import { Difficulty, SkillStatus } from '@prisma/client';
 
 export class CreateSkillDto {
+  @IsOptional()
+  @IsString()
+  id?: string;
+
+  @IsString()
+  skillId: string;
+
   @IsString()
   @IsNotEmpty()
   title: string;
