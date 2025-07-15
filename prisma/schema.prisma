@@ -77,7 +77,7 @@ model Quest {
   position           Json  
   skillId            String
 
-  skill       Skill            @relation(fields: [skillId], references: [id])
+  skill       Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
   parentRelations QuestRelation[]  @relation("ChildQuest")
   childRelations  QuestRelation[]  @relation("ParentQuest")
   workSessionLinks WorkSessionQuest[]

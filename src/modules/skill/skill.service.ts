@@ -20,4 +20,20 @@ export class SkillService {
       );
     }
   }
+
+  async getSkillsByUserId(userId: string) {
+    return this.skillRepository.findByUserId(userId);
+  }
+
+  async getSkillById(id: string) {
+    return this.skillRepository.findById(id);
+  }
+
+  async updateSkill(id: string, data: Partial<CreateSkillDto>) {
+    return this.skillRepository.update(id, data);
+  }
+
+  async deleteSkill(id: string) {
+    return this.skillRepository.delete(id);
+  }
 }
