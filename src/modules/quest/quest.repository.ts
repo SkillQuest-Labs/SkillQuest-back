@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/database/prisma/prisma.service';
+import { QuestRelationDto } from './dto/create-quest.dto';
 
 @Injectable()
 export class QuestRepository {
@@ -13,6 +14,13 @@ export class QuestRepository {
     return newQuest;
   }
 
+  async createQuestRelation(questRelationData: QuestRelationDto) {
+    const newRelation = await this.prisma.questRelation.create({
+      data: questRelationData,
+    });
+    return newRelation;
+  }
+
   async findAllBySkillId(skillId: string) {
     const [quests, total] = await this.prisma.$transaction([
       this.prisma.quest.findMany({
@@ -23,7 +31,16 @@ export class QuestRepository {
       }),
     ]);
 
-    return { quests, total };
+    const questRelations = await this.prisma.questRelation.findMany({
+      where: {
+        OR: [
+          { parentQuestId: { in: quests.map((q) => q.id) } },
+          { childQuestId: { in: quests.map((q) => q.id) } },
+        ],
+      },
+    });
+
+    return { quests, questRelations, total };
   }
 
   async findById(id: string) {
@@ -63,6 +80,12 @@ export class QuestRepository {
       ...deletedQuests,
       skillName: skill?.title || null,
     };
+  }
+
+  async deleteQuestRelation(questRelationId: string) {
+    return this.prisma.questRelation.delete({
+      where: { questRelationId },
+    });
   }
 
   async deleteByFilter(where: Prisma.QuestWhereInput) {
