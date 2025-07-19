@@ -9,7 +9,7 @@ import {
   ParseArrayPipe,
 } from '@nestjs/common';
 import { QuestService } from './quest.service';
-import { CreateQuestDto } from './dto/create-quest.dto';
+import { CreateQuestDto, QuestRelationDto } from './dto/create-quest.dto';
 import { UpdateQuestDto } from './dto/update-quest.dto';
 
 @Controller('quests')
@@ -30,11 +30,20 @@ export class QuestController {
     return createdQuests;
   }
 
+  @Post('relations')
+  async saveQuestConnection(
+    @Body(new ParseArrayPipe({ items: QuestRelationDto }))
+    relations: QuestRelationDto[],
+  ) {
+    const newRelations = await this.questService.saveQuestRelation(relations);
+    return newRelations;
+  }
+
   @Get(':skillId')
   async getAllQuestsBySkillId(@Param('skillId') skillId: string) {
-    const { quests, total } =
+    const { quests, questRelations, total } =
       await this.questService.getAllQuestsBySkillId(skillId);
-    return { quests, total };
+    return { quests, questRelations, total };
   }
 
   @Put()
@@ -50,6 +59,13 @@ export class QuestController {
   async deleteAllQuestsBySkillId(@Param('skillId') skillId: string) {
     const deletedQuests = await this.questService.deleteAllQuests(skillId);
     return deletedQuests;
+  }
+
+  @Post('delete/relations')
+  async deleteAllQuests(
+    @Body() questRelationData: { questRelationId: string }[],
+  ) {
+    return await this.questService.deleteQuestRelation(questRelationData);
   }
 
   @Delete()

@@ -51,3 +51,9 @@ export class CreateQuestDto {
   @IsString()
   skillId: string;
 }
+
+export class QuestRelationDto {
+  questRelationId: string;
+  parentQuestId: string;
+  childQuestId: string;
+}

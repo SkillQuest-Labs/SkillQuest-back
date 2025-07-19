@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { QuestRepository } from './quest.repository';
-import { CreateQuestDto } from './dto/create-quest.dto';
+import { CreateQuestDto, QuestRelationDto } from './dto/create-quest.dto';
 import { UpdateQuestDto } from './dto/update-quest.dto';
 
 @Injectable()
@@ -22,10 +22,23 @@ export class QuestService {
     };
   }
 
+  async saveQuestRelation(relations: QuestRelationDto[]) {
+    const newRelations = await Promise.all(
+      relations.map((questRelationData) => {
+        return this.questRepository.createQuestRelation(questRelationData);
+      }),
+    );
+
+    return {
+      relations: newRelations,
+      total: newRelations.length,
+    };
+  }
+
   async getAllQuestsBySkillId(skillId: string) {
-    const { quests, total } =
+    const { quests, questRelations, total } =
       await this.questRepository.findAllBySkillId(skillId);
-    return { quests, total };
+    return { quests, questRelations, total };
   }
 
   async updateQuest(quest: UpdateQuestDto[]) {
@@ -47,6 +60,14 @@ export class QuestService {
     return await Promise.all(
       quest.map(({ id }) => {
         return this.questRepository.delete(id);
+      }),
+    );
+  }
+
+  async deleteQuestRelation(questRelationData: { questRelationId: string }[]) {
+    return await Promise.all(
+      questRelationData.map(({ questRelationId }) => {
+        return this.questRepository.deleteQuestRelation(questRelationId);
       }),
     );
   }
