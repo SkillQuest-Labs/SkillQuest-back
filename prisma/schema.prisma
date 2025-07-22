@@ -62,6 +62,8 @@ model Skill {
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   quests Quest[]
+  
+  parentRelations QuestRelation[] @relation("ParentSkillQuestRelation")
 }
 
 model Quest {
@@ -88,11 +90,13 @@ model Quest {
 model QuestRelation {
   id              String @id @default(uuid())
   questRelationId String @unique
-  parentQuestId   String
+  parentSkillId   String?
+  parentQuestId   String?
   childQuestId    String
 
-  parentQuest Quest @relation("ParentQuest", fields: [parentQuestId], references: [id], onDelete: Cascade)
-  childQuest  Quest @relation("ChildQuest", fields: [childQuestId], references: [id], onDelete: Cascade)
+  parentQuest Quest? @relation("ParentQuest", fields: [parentQuestId], references: [questId], onDelete: Cascade)
+  parentSkill Skill? @relation("ParentSkillQuestRelation", fields: [parentSkillId], references: [skillId], onDelete: Cascade)
+  childQuest  Quest @relation("ChildQuest", fields: [childQuestId], references: [questId], onDelete: Cascade)
 }
 
 model Trophy {

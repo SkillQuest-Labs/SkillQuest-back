@@ -55,5 +55,6 @@ export class CreateQuestDto {
 export class QuestRelationDto {
   questRelationId: string;
   parentQuestId: string;
+  parentSkillId?: string;
   childQuestId: string;
 }

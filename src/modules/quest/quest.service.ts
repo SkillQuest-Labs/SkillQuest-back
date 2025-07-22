@@ -24,15 +24,24 @@ export class QuestService {
 
   async saveQuestRelation(relations: QuestRelationDto[]) {
     const newRelations = await Promise.all(
-      relations.map((questRelationData) => {
+      relations.map(async (questRelationData) => {
+        const hasParentQuest = !!questRelationData.parentQuestId;
+        const hasParentSkill = !!questRelationData.parentSkillId;
+
+        if (
+          (hasParentQuest && hasParentSkill) ||
+          (!hasParentQuest && !hasParentSkill)
+        ) {
+          throw new Error(
+            'A QuestRelation must have either a parentQuestId or a parentSkillId, but not both.',
+          );
+        }
+
         return this.questRepository.createQuestRelation(questRelationData);
       }),
     );
 
-    return {
-      relations: newRelations,
-      total: newRelations.length,
-    };
+    return newRelations;
   }
 
   async getAllQuestsBySkillId(skillId: string) {
