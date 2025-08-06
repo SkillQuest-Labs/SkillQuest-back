@@ -63,6 +63,7 @@ model Skill {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   quests Quest[]
   
+  workSessions WorkSession[]
   parentRelations QuestRelation[] @relation("ParentSkillQuestRelation")
 }
 
@@ -83,7 +84,7 @@ model Quest {
   skill       Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
   parentRelations QuestRelation[]  @relation("ChildQuest")
   childRelations  QuestRelation[]  @relation("ParentQuest")
-  workSessionLinks WorkSessionQuest[]
+  workSessions     WorkSession[]
 }
 
 
@@ -157,24 +158,21 @@ model UserStats {
 
 model WorkSession {
   id              String   @id @default(uuid())
+  title           String
+  description     String?
+  color           String
   date            DateTime
   duration        DateTime
   createdAt       DateTime
   difficultyScore Int?
   focusLevel      Int?
   userId          String
+  linkedSkillId   String
+  questId         String
 
   user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  quests    WorkSessionQuest[]
-}
-
-model WorkSessionQuest {
-  id             String @id @default(uuid())
-  questId        String
-  workSessionId  String
-
-  quest        Quest?       @relation(fields: [questId], references: [id], onDelete: Cascade)
-  workSession  WorkSession? @relation(fields: [workSessionId], references: [id], onDelete: Cascade)
+  linkedSkill Skill           @relation(fields: [linkedSkillId], references: [id])
+  quest        Quest   @relation(fields: [questId], references: [id], onDelete: Cascade)
 }
 
 model Avatar {

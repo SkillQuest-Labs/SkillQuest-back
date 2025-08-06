@@ -8,20 +8,17 @@ export class SessionService {
 
   async createSession(data: CreateSessionDto) {
     try {
-      const start = new Date(data.startTime);
-      const end = new Date(data.endTime);
-
-      if (end <= start) {
-        throw new BadRequestException('endTime must be after startTime');
-      }
-
       return await this.sessionRepository.create({
-        date: start,
-        duration: end,
+        title: data.title,
+        description: data.description,
+        color: data.color,
+        date: new Date(data.startTime),
+        duration: new Date(data.endTime),
         createdAt: new Date(),
         difficultyScore: data.difficultyScore,
         focusLevel: data.focusLevel,
         user: { connect: { id: data.userId } },
+        linkedSkill: { connect: { id: data.linkedSkillId } },
         quests: {
           create: {
             quest: { connect: { id: data.questId } },
