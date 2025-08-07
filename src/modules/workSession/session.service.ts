@@ -8,15 +8,20 @@ export class SessionService {
 
   async createSession(data: CreateSessionDto) {
     try {
+      const startTime = new Date(data.startTime);
+      const endTime = new Date(data.endTime);
+      const durationMs = endTime.getTime() - startTime.getTime();
+      const durationSession = Math.floor(durationMs / 60000);
+
       return await this.sessionRepository.create({
         title: data.title,
         description: data.description,
         color: data.color,
-        date: new Date(data.startTime),
-        duration: new Date(data.endTime),
+        date: new Date(data.startDate),
+        startTime: startTime,
+        endTime: endTime,
+        duration: durationSession,
         createdAt: new Date(),
-        difficultyScore: data.difficultyScore,
-        focusLevel: data.focusLevel,
         user: { connect: { id: data.userId } },
         linkedSkill: { connect: { id: data.linkedSkillId } },
         quests: {

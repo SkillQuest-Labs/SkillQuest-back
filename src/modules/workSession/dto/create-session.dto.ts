@@ -1,12 +1,4 @@
-import {
-  IsDateString,
-  IsOptional,
-  IsInt,
-  Min,
-  Max,
-  IsString,
-  Matches,
-} from 'class-validator';
+import { IsDateString, IsOptional, IsString, Matches } from 'class-validator';
 
 export class CreateSessionDto {
   @IsString()
@@ -21,10 +13,10 @@ export class CreateSessionDto {
   color: string;
 
   @IsString()
-  linkedSkillId?: string;
+  linkedSkillId: string;
 
   @IsDateString()
-  date: string;
+  startDate: string;
 
   @IsDateString()
   startTime: string;
@@ -37,16 +29,4 @@ export class CreateSessionDto {
 
   @IsString()
   questId: string;
-
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  @Max(10)
-  difficultyScore?: number;
-
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  @Max(10)
-  focusLevel?: number;
 }
