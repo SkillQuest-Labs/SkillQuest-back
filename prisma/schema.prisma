@@ -63,6 +63,7 @@ model Skill {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   quests Quest[]
   
+  workSessions WorkSession[]
   parentRelations QuestRelation[] @relation("ParentSkillQuestRelation")
 }
 
@@ -157,16 +158,24 @@ model UserStats {
 
 model WorkSession {
   id              String   @id @default(uuid())
+  title           String
+  description     String?
+  color           String
   date            DateTime
-  duration        DateTime
+  startTime       DateTime
+  endTime         DateTime
+  duration        Int
   createdAt       DateTime
   difficultyScore Int?
   focusLevel      Int?
   userId          String
+  linkedSkillId   String
 
-  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  quests    WorkSessionQuest[]
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  linkedSkill Skill             @relation(fields: [linkedSkillId], references: [id])
+  quests  WorkSessionQuest[]
 }
+
 
 model WorkSessionQuest {
   id             String @id @default(uuid())
