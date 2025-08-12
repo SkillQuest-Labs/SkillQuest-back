@@ -172,7 +172,7 @@ model WorkSession {
   linkedSkillId   String
 
   user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  linkedSkill Skill             @relation(fields: [linkedSkillId], references: [id])
+  linkedSkill Skill             @relation(fields: [linkedSkillId], references: [id], onDelete: Cascade)
   quests  WorkSessionQuest[]
 }
 
