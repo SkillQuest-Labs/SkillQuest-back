@@ -27,14 +27,16 @@ export class CreateQuestDto {
   description: string;
 
   @IsEnum(Difficulty)
-  difficulty: Difficulty;
+  @IsOptional()
+  difficulty?: Difficulty;
 
   @IsNumber()
   @IsOptional()
   degree?: number;
 
   @IsNumber()
-  xp: number;
+  @IsOptional()
+  xp?: number;
 
   @IsEnum(QuestStatus)
   status: QuestStatus;
