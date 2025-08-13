@@ -78,7 +78,8 @@ model Quest {
   status             QuestStatus @default(LOCKED)
   isSubSkill         Boolean
   completionTime     DateTime?
-  position           Json  
+  position           Json
+  connectionCount    Int         @default(0)
   skillId            String
 
   skill       Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)

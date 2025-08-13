@@ -50,6 +50,9 @@ export class CreateQuestDto {
   @IsObject()
   position: { x: number; y: number };
 
+  @IsNumber()
+  connectionCount: number;
+
   @IsString()
   skillId: string;
 }
