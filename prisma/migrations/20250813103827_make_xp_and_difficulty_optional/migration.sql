@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Quest" ALTER COLUMN "difficulty" DROP NOT NULL,
+ALTER COLUMN "xp" DROP NOT NULL;

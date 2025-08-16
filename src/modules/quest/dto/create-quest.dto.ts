@@ -26,15 +26,9 @@ export class CreateQuestDto {
   @IsNotEmpty()
   description: string;
 
-  @IsEnum(Difficulty)
-  difficulty: Difficulty;
-
   @IsNumber()
   @IsOptional()
   degree?: number;
-
-  @IsNumber()
-  xp: number;
 
   @IsEnum(QuestStatus)
   status: QuestStatus;
@@ -47,6 +41,9 @@ export class CreateQuestDto {
 
   @IsObject()
   position: { x: number; y: number };
+
+  @IsNumber()
+  connectionCount: number;
 
   @IsString()
   skillId: string;

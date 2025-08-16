@@ -72,13 +72,14 @@ model Quest {
   questId            String      @unique
   title              String
   description        String?
-  difficulty         Difficulty
-  xp                 Int
+  difficulty         Difficulty?
+  xp                 Int?
   degree             Int?
   status             QuestStatus @default(LOCKED)
   isSubSkill         Boolean
   completionTime     DateTime?
-  position           Json  
+  position           Json
+  connectionCount    Int         @default(0)
   skillId            String
 
   skill       Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
