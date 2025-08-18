@@ -10,6 +10,7 @@ import { PrismaModule } from './database/prisma/prisma.module';
 import { QuestModule } from './modules/quest/quest.module';
 import { UserModule } from './modules/user/user.module';
 import { SkillModule } from './modules/skill/skill.module';
+import { ClerkModule } from './modules/clerk/clerk.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { SkillModule } from './modules/skill/skill.module';
     QuestModule,
     UserModule,
     SkillModule,
+    ClerkModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppConfigService],
