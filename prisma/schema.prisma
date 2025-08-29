@@ -59,6 +59,10 @@ model Skill {
   completionTime DateTime?
   status              SkillStatus @default(DRAFT)
   userId              String
+  totalXp             Int @default(0)
+  completedQuests     Int @default(0)
+  averageQuestXp      Int @default(0)
+  color               String?
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   quests Quest[]
