@@ -24,6 +24,10 @@ export class CreateSkillDto {
   @IsOptional()
   status: SkillStatus;
 
+  @IsOptional()
+  @IsString()
+  color?: string;
+
   @IsNotEmpty()
   @IsString()
   userId: string;
