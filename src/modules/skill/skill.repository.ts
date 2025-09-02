@@ -11,9 +11,19 @@ export default class SkillRepository {
   }
 
   async findByUserId(userId: string) {
-    return this.prisma.skill.findMany({
+    const skills = await this.prisma.skill.findMany({
       where: { userId },
+      include: {
+        _count: {
+          select: { quests: true },
+        },
+      },
     });
+
+    return skills.map(({ _count, ...skill }) => ({
+      ...skill,
+      totalQuests: _count.quests,
+    }));
   }
 
   async findById(id: string) {
