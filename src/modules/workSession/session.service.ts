@@ -1,6 +1,11 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateSessionDto } from './dto/create-session.dto';
 import SessionRepository from './session.repository';
+import { UpdateSessionDto } from './dto/update-session.dto';
 
 @Injectable()
 export class SessionService {
@@ -10,9 +15,7 @@ export class SessionService {
     try {
       const startTime = new Date(data.startTime);
       const endTime = new Date(data.endTime);
-      const durationMs = endTime.getTime() - startTime.getTime();
-      const durationSession = Math.floor(durationMs / 60000);
-
+      const durationSession = this.getDurationSession({ startTime, endTime });
       return await this.sessionRepository.create({
         title: data.title,
         description: data.description,
@@ -25,9 +28,7 @@ export class SessionService {
         user: { connect: { id: data.userId } },
         linkedSkill: { connect: { id: data.linkedSkillId } },
         quests: {
-          create: {
-            quest: { connect: { id: data.questId } },
-          },
+          createMany: { data: data.questIds.map((questId) => ({ questId })) },
         },
       });
     } catch (error: unknown) {
@@ -37,6 +38,40 @@ export class SessionService {
         );
       }
       throw new BadRequestException('Invalid session creation payload');
+    }
+  }
+
+  async updateSession(id: string, data: UpdateSessionDto) {
+    const session = await this.sessionRepository.findById(id);
+    if (!session) throw new NotFoundException('Session not found');
+
+    try {
+      const startTime = new Date(data.startTime);
+      const endTime = new Date(data.endTime);
+      const durationSession = this.getDurationSession({ startTime, endTime });
+
+      return await this.sessionRepository.update(id, {
+        title: data.title,
+        description: data.description,
+        color: data.color,
+        date: new Date(data.startDate),
+        startTime: startTime,
+        endTime: endTime,
+        duration: durationSession,
+        user: { connect: { id: data.userId } },
+        linkedSkill: { connect: { id: data.linkedSkillId } },
+        quests: {
+          deleteMany: {},
+          createMany: { data: data.questIds.map((questId) => ({ questId })) },
+        },
+      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new BadRequestException(
+          `Invalid session update payload: ${error.message}`,
+        );
+      }
+      throw new BadRequestException('Invalid session update payload');
     }
   }
 
@@ -50,5 +85,11 @@ export class SessionService {
 
   async deleteSession(id: string) {
     return this.sessionRepository.delete(id);
+  }
+
+  private getDurationSession(data: { startTime: Date; endTime: Date }) {
+    const durationMs = data.endTime.getTime() - data.startTime.getTime();
+
+    return Math.floor(durationMs / 60000);
   }
 }
