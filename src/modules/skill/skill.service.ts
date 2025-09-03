@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import SkillRepository from './skill.repository';
+import { UpdateSkillDto } from './dto/update-skill.dto';
 
 @Injectable()
 export class SkillService {
@@ -29,7 +30,7 @@ export class SkillService {
     return this.skillRepository.findById(id);
   }
 
-  async updateSkill(id: string, data: Partial<CreateSkillDto>) {
+  async updateSkill(id: string, data: UpdateSkillDto) {
     return this.skillRepository.update(id, data);
   }
 
