@@ -1,6 +1,7 @@
 import { PartialType } from '@nestjs/swagger';
 import { CreateSkillDto } from './create-skill.dto';
-import { IsInt, Min } from 'class-validator';
+import { IsDate, IsInt, IsOptional, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class UpdateSkillDto extends PartialType(CreateSkillDto) {
   @IsInt()
@@ -14,4 +15,9 @@ export class UpdateSkillDto extends PartialType(CreateSkillDto) {
   @IsInt()
   @Min(0)
   averageQuestXp: number;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  completionTime?: Date;
 }
