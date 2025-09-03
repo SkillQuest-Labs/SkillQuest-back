@@ -15,7 +15,7 @@ export class SessionService {
     try {
       const startTime = new Date(data.startTime);
       const endTime = new Date(data.endTime);
-      const durationSession = this.getDurationSession({ startTime, endTime });
+      const sessionDuration = this.getSessionDuration({ startTime, endTime });
       return await this.sessionRepository.create({
         title: data.title,
         description: data.description,
@@ -23,7 +23,7 @@ export class SessionService {
         date: new Date(data.startDate),
         startTime: startTime,
         endTime: endTime,
-        duration: durationSession,
+        duration: sessionDuration,
         createdAt: new Date(),
         user: { connect: { id: data.userId } },
         linkedSkill: { connect: { id: data.linkedSkillId } },
@@ -48,7 +48,7 @@ export class SessionService {
     try {
       const startTime = new Date(data.startTime);
       const endTime = new Date(data.endTime);
-      const durationSession = this.getDurationSession({ startTime, endTime });
+      const sessionDuration = this.getSessionDuration({ startTime, endTime });
 
       return await this.sessionRepository.update(id, {
         title: data.title,
@@ -57,7 +57,7 @@ export class SessionService {
         date: new Date(data.startDate),
         startTime: startTime,
         endTime: endTime,
-        duration: durationSession,
+        duration: sessionDuration,
         user: { connect: { id: data.userId } },
         linkedSkill: { connect: { id: data.linkedSkillId } },
         quests: {
@@ -87,7 +87,7 @@ export class SessionService {
     return this.sessionRepository.delete(id);
   }
 
-  private getDurationSession(data: { startTime: Date; endTime: Date }) {
+  private getSessionDuration(data: { startTime: Date; endTime: Date }) {
     const durationMs = data.endTime.getTime() - data.startTime.getTime();
 
     return Math.floor(durationMs / 60000);
