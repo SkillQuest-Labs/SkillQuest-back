@@ -15,6 +15,13 @@ export default class SessionRepository {
     });
   }
 
+  async update(sessionId: string, session: Prisma.WorkSessionUpdateInput) {
+    return this.prisma.workSession.update({
+      where: { id: sessionId },
+      data: session,
+    });
+  }
+
   async findByUserId(userId: string) {
     return this.prisma.workSession.findMany({
       where: { userId },

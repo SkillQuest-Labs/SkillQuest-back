@@ -1,4 +1,10 @@
-import { IsDateString, IsOptional, IsString, Matches } from 'class-validator';
+import {
+  IsArray,
+  IsDateString,
+  IsOptional,
+  IsString,
+  Matches,
+} from 'class-validator';
 
 export class CreateSessionDto {
   @IsString()
@@ -27,6 +33,7 @@ export class CreateSessionDto {
   @IsString()
   userId: string;
 
-  @IsString()
-  questId: string;
+  @IsArray()
+  @IsString({ each: true })
+  questIds: string[];
 }
