@@ -1,5 +1,6 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { UserService } from './user.service';
+import { UserDto } from './dto/user.dto';
 
 @Controller('user')
 export class UserController {
@@ -8,5 +9,10 @@ export class UserController {
   @Get(':userId')
   async getHudProfile(@Param('userId') userId: string) {
     return this.userService.getUserHudProfile(userId);
+  }
+
+  @Post('synch')
+  async synchronizeUserData(@Body() userData: UserDto) {
+    return this.userService.synchronizeUserData(userData);
   }
 }
