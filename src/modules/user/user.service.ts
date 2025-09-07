@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -21,5 +22,21 @@ export class UserService {
       level: user.userStats?.level,
       urlAvatar: user.avatar?.urlImage ?? null,
     };
+  }
+
+  async synchronizeUserData(userData: UserDto) {
+    const existingUser = await this.userRepository.findByClerkId(userData.id);
+
+    if (existingUser) {
+      return existingUser;
+    }
+
+    const newUser = {
+      ...userData,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    return this.userRepository.create(newUser);
   }
 }
