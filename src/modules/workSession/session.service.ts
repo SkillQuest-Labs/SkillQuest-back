@@ -6,6 +6,7 @@ import {
 import { CreateSessionDto } from './dto/create-session.dto';
 import SessionRepository from './session.repository';
 import { UpdateSessionDto } from './dto/update-session.dto';
+import { ListSessionsQueryDto } from './dto/list-sessions-query.dto';
 
 @Injectable()
 export class SessionService {
@@ -73,6 +74,15 @@ export class SessionService {
       }
       throw new BadRequestException('Invalid session update payload');
     }
+  }
+
+  async listSessions(query: ListSessionsQueryDto) {
+    const { userId, skill, quest, date, limit, cursor } = query;
+    return this.sessionRepository.findByFilters(
+      { userId, skill, quest, date },
+      limit,
+      cursor ?? null,
+    );
   }
 
   async getSessionsByUser(userId: string) {

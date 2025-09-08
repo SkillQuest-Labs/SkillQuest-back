@@ -6,10 +6,20 @@ import {
   Get,
   Delete,
   Put,
+  Query,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { SessionService } from './session.service';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
+import { ListSessionsQueryDto } from './dto/list-sessions-query.dto';
+import { getAuth } from '@clerk/express';
+import type { Request as ExpressRequest } from 'express';
+
+function hasUserId(auth: unknown): auth is { userId: string } {
+  return typeof (auth as { userId?: unknown })?.userId === 'string';
+}
 
 @Controller('sessions')
 export class SessionController {
@@ -28,6 +38,16 @@ export class SessionController {
   @Delete(':id')
   async deleteSession(@Param('id') id: string) {
     return this.sessionService.deleteSession(id);
+  }
+
+  @Get('filter')
+  listSessions(
+    @Req() req: ExpressRequest,
+    @Query() query: ListSessionsQueryDto,
+  ) {
+    const auth = getAuth(req);
+    if (!hasUserId(auth)) throw new UnauthorizedException();
+    return this.sessionService.listSessions({ ...query, userId: auth.userId });
   }
 
   @Get(':id')
