@@ -91,4 +91,16 @@ export class QuestRepository {
   async deleteByFilter(where: Prisma.QuestWhereInput) {
     return this.prisma.quest.deleteMany({ where });
   }
+
+  async updateQuestStatuses(questIds: string[]) {
+    return this.prisma.quest.updateMany({
+      where: {
+        id: { in: questIds },
+      },
+      data: {
+        status: 'COMPLETED',
+        completionTime: new Date(),
+      },
+    });
+  }
 }

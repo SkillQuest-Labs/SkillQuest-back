@@ -172,6 +172,7 @@ model WorkSession {
   createdAt       DateTime
   difficultyScore Int?
   focusLevel      Int?
+  isValidated     Boolean  @default(false)
   userId          String
   linkedSkillId   String
 

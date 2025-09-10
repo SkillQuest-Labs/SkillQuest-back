@@ -7,10 +7,20 @@ import { CreateSessionDto } from './dto/create-session.dto';
 import SessionRepository from './session.repository';
 import { UpdateSessionDto } from './dto/update-session.dto';
 import { ListSessionsQueryDto } from './dto/list-sessions-query.dto';
+import { ValidateSessionDto } from './dto/validate-session.dto';
+import { XpCalculationService } from '../../shared/services/xp-calculation.service';
+import { SessionValidationData } from '../../shared/interfaces/xp-calculation.interface';
+import { QuestRepository } from '../quest/quest.repository';
+import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class SessionService {
-  constructor(private readonly sessionRepository: SessionRepository) {}
+  constructor(
+    private readonly sessionRepository: SessionRepository,
+    private readonly xpCalculationService: XpCalculationService,
+    private readonly questRepository: QuestRepository,
+    private readonly userRepository: UserRepository,
+  ) {}
 
   async createSession(data: CreateSessionDto) {
     try {
@@ -102,4 +112,63 @@ export class SessionService {
 
     return Math.floor(durationMs / 60000);
   }
+
+
+  async validateSession(data: ValidateSessionDto, userId: string) {
+    try {
+      const session = await this.sessionRepository.findById(data.sessionId);
+      if (!session) {
+        throw new NotFoundException('Session not found');
+      }
+
+      if (session.userId !== userId) {
+        throw new BadRequestException('You can only validate your own sessions');
+      }
+
+      const user = await this.userRepository.findUserWithStats(userId);
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const userLevel = user.userStats?.level || 1;
+      const currentXp = user.userStats?.xp || 0;
+
+      const questXpValues = data.completedQuests.map(quest => quest.xp);
+      const sessionData: SessionValidationData = {
+        duration: session.duration,
+        questsCompleted: data.completedQuests.length,
+        userLevel,
+        currentXp,
+        questXpValues,
+      };
+
+      const xpResult = this.xpCalculationService.calculateSessionXp(sessionData);
+
+      await this.userRepository.update(userId, xpResult.xpGained, xpResult.newLevel);
+
+      const questIds = data.completedQuests.map(quest => quest.id);
+      await this.questRepository.updateQuestStatuses(questIds);
+
+      await this.sessionRepository.validateSession(data.sessionId);
+
+      return {
+        sessionId: data.sessionId,
+        xpGained: xpResult.xpGained,
+        newLevel: xpResult.newLevel,
+        levelUp: xpResult.levelUp,
+        xpToNextLevel: xpResult.xpToNextLevel,
+        completedQuests: data.completedQuests,
+        message: xpResult.levelUp 
+          ? `Félicitations ! Vous avez gagné ${xpResult.xpGained} XP et atteint le niveau ${xpResult.newLevel} !`
+          : `Session validée ! Vous avez gagné ${xpResult.xpGained} XP.`,
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new BadRequestException(`Error validating session: ${error.message}`);
+    }
+  }
+
 }

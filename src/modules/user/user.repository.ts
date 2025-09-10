@@ -27,4 +27,28 @@ export class UserRepository {
       },
     });
   }
+
+  async update(userId: string, xpGained: number, newLevel: number) {
+    return this.prisma.userStats.upsert({
+      where: { userId },
+      update: {
+        xp: { increment: xpGained },
+        level: newLevel,
+        totalXp: { increment: xpGained },
+      },
+      create: {
+        userId,
+        xp: xpGained,
+        level: newLevel,
+        totalXp: xpGained,
+      },
+    });
+  }
+
+  async findUserWithStats(userId: string) {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { userStats: true },
+    });
+  }
 }

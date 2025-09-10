@@ -24,7 +24,10 @@ export default class SessionRepository {
 
   async findByUserId(userId: string) {
     return this.prisma.workSession.findMany({
-      where: { userId },
+      where: { 
+        userId,
+        isValidated: false
+      },
       include: {
         quests: {
           include: { quest: true },
@@ -64,12 +67,15 @@ export default class SessionRepository {
   }) {
     const { userId, skill, quest, date, limit = 20, page = 1 } = filters;
 
-    const where: Prisma.WorkSessionWhereInput = { userId };
+    const where: Prisma.WorkSessionWhereInput = { 
+      userId,
+      isValidated: false
+    };
 
     const skillTerm = skill?.trim();
     if (skillTerm) {
       where.linkedSkill = {
-        is: { title: { contains: skillTerm, mode: 'insensitive' } }, // insensible à la casse
+        is: { title: { contains: skillTerm, mode: 'insensitive' } },
       };
     }
 
@@ -79,7 +85,7 @@ export default class SessionRepository {
         some: {
           quest: {
             is: {
-              title: { contains: questTerm, mode: 'insensitive' }, // insensible à la casse
+              title: { contains: questTerm, mode: 'insensitive' },
             },
           },
         },
@@ -118,4 +124,12 @@ export default class SessionRepository {
       pageCount: Math.max(1, Math.ceil(total / pageSize)),
     };
   }
+
+  async validateSession(sessionId: string) {
+    return this.prisma.workSession.update({
+      where: { id: sessionId },
+      data: { isValidated: true },
+    });
+  }
+
 }
