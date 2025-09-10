@@ -7,19 +7,12 @@ import {
   Delete,
   Put,
   Query,
-  Req,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { SessionService } from './session.service';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
 import { ListSessionsQueryDto } from './dto/list-sessions-query.dto';
-import { getAuth } from '@clerk/express';
-import type { Request as ExpressRequest } from 'express';
-
-function hasUserId(auth: unknown): auth is { userId: string } {
-  return typeof (auth as { userId?: unknown })?.userId === 'string';
-}
+import { UserId } from 'src/shared/services/decorators/user-id.decorator';
 
 @Controller('sessions')
 export class SessionController {
@@ -41,13 +34,8 @@ export class SessionController {
   }
 
   @Get('filter')
-  listSessions(
-    @Req() req: ExpressRequest,
-    @Query() query: ListSessionsQueryDto,
-  ) {
-    const auth = getAuth(req);
-    if (!hasUserId(auth)) throw new UnauthorizedException();
-    return this.sessionService.listSessions({ ...query, userId: auth.userId });
+  listSessions(@UserId() userId: string, @Query() query: ListSessionsQueryDto) {
+    return this.sessionService.listSessions({ ...query, userId });
   }
 
   @Get(':id')

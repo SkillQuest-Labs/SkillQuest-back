@@ -54,58 +54,68 @@ export default class SessionRepository {
     });
   }
 
-  async findByFilters(
-    filters: { userId: string; skill?: string; quest?: string; date?: string },
-    limit: number,
-    cursor?: string | null,
-  ) {
-    const where: Prisma.WorkSessionWhereInput = { userId: filters.userId };
+  async findByFilters(filters: {
+    userId: string;
+    skill?: string;
+    quest?: string;
+    date?: string;
+    limit?: number;
+    page?: number;
+  }) {
+    const { userId, skill, quest, date, limit = 20, page = 1 } = filters;
 
-    if (filters.skill?.trim()) {
+    const where: Prisma.WorkSessionWhereInput = { userId };
+
+    const skillTerm = skill?.trim();
+    if (skillTerm) {
       where.linkedSkill = {
-        is: { title: { contains: filters.skill.trim(), mode: 'insensitive' } },
+        is: { title: { contains: skillTerm, mode: 'insensitive' } }, // insensible à la casse
       };
     }
 
-    if (filters.quest?.trim()) {
+    const questTerm = quest?.trim();
+    if (questTerm) {
       where.quests = {
         some: {
           quest: {
             is: {
-              title: { contains: filters.quest.trim(), mode: 'insensitive' },
+              title: { contains: questTerm, mode: 'insensitive' }, // insensible à la casse
             },
           },
         },
       };
     }
 
-    if (filters.date) {
-      const start = new Date(`${filters.date}T00:00:00.000Z`);
-      const end = new Date(`${filters.date}T23:59:59.999Z`);
+    if (date) {
+      const start = new Date(`${date}T00:00:00.000Z`);
+      const end = new Date(`${date}T23:59:59.999Z`);
       where.date = { gte: start, lte: end };
     }
 
-    const take = Math.min(Math.max(limit, 1), 50);
+    const pageSize = Math.min(Math.max(Number(limit) || 20, 1), 100);
+    const currentPage = Math.max(Number(page) || 1, 1);
+    const offset = (currentPage - 1) * pageSize;
 
-    const baseArgs: Prisma.WorkSessionFindManyArgs = {
-      where,
-      orderBy: [{ date: 'desc' }, { id: 'desc' }],
-      take: take + 1,
-      include: {
-        quests: { include: { quest: true } },
-        linkedSkill: { select: { title: true } },
-      },
+    const [total, items] = await this.prisma.$transaction([
+      this.prisma.workSession.count({ where }),
+      this.prisma.workSession.findMany({
+        where,
+        take: pageSize,
+        skip: offset,
+        orderBy: [{ date: 'desc' }, { id: 'desc' }],
+        include: {
+          quests: { include: { quest: true } },
+          linkedSkill: { select: { title: true } },
+        },
+      }),
+    ]);
+
+    return {
+      items,
+      total,
+      page: currentPage,
+      limit: pageSize,
+      pageCount: Math.max(1, Math.ceil(total / pageSize)),
     };
-
-    const args = cursor
-      ? { ...baseArgs, skip: 1, cursor: { id: cursor } }
-      : baseArgs;
-
-    const rows = await this.prisma.workSession.findMany(args);
-    const hasMore = rows.length > take;
-    const items = hasMore ? rows.slice(0, take) : rows;
-    const nextCursor = hasMore ? items[items.length - 1].id : null;
-
-    return { items, hasMore, nextCursor };
   }
 }

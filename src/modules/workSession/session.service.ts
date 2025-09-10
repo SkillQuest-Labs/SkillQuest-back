@@ -76,13 +76,13 @@ export class SessionService {
     }
   }
 
-  async listSessions(query: ListSessionsQueryDto) {
-    const { userId, skill, quest, date, limit, cursor } = query;
-    return this.sessionRepository.findByFilters(
-      { userId, skill, quest, date },
-      limit,
-      cursor ?? null,
-    );
+  async listSessions(query: ListSessionsQueryDto & { userId: string }) {
+    try {
+      const { userId, ...filters } = query;
+      return await this.sessionRepository.findByFilters({ ...filters, userId });
+    } catch {
+      throw new BadRequestException('Impossible de lister les sessions');
+    }
   }
 
   async getSessionsByUser(userId: string) {
