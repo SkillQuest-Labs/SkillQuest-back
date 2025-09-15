@@ -5,7 +5,7 @@ import SessionRepository from './session.repository';
 import { XpCalculationService } from '../../shared/services/xp-calculation.service';
 import { QuestRepository } from '../quest/quest.repository';
 import { UserRepository } from '../user/user.repository';
-import { PrismaService } from '../../database/prisma/prisma.service';
+import SkillRepository from '../skill/skill.repository';
 
 @Module({
   imports: [],
@@ -16,7 +16,7 @@ import { PrismaService } from '../../database/prisma/prisma.service';
     XpCalculationService, 
     QuestRepository,
     UserRepository,
-    PrismaService
+    SkillRepository
   ],
 })
 export class SessionModule {}

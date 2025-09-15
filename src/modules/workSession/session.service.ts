@@ -12,6 +12,7 @@ import { XpCalculationService } from '../../shared/services/xp-calculation.servi
 import { SessionValidationData, QuestXpData } from '../../shared/interfaces/xp-calculation.interface';
 import { QuestRepository } from '../quest/quest.repository';
 import { UserRepository } from '../user/user.repository';
+import SkillRepository from '../skill/skill.repository';
 
 @Injectable()
 export class SessionService {
@@ -20,6 +21,7 @@ export class SessionService {
     private readonly xpCalculationService: XpCalculationService,
     private readonly questRepository: QuestRepository,
     private readonly userRepository: UserRepository,
+    private readonly skillRepository: SkillRepository,
   ) {}
 
   async createSession(data: CreateSessionDto) {
@@ -175,6 +177,8 @@ export class SessionService {
       await this.updateQuestsFromCalculation(xpResult.questXpData);
 
       await this.sessionRepository.validateSession(data.sessionId);
+
+      await this.skillRepository.updateSkillStats(session.linkedSkillId);
 
       return {
         sessionId: data.sessionId,
