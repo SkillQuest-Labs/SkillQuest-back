@@ -4,6 +4,8 @@ import { Prisma } from '@prisma/client';
 
 @Injectable()
 export default class SessionRepository {
+  private readonly DEFAULT_SESSION_LIMIT = 10;
+
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: Prisma.WorkSessionCreateInput) {
@@ -65,7 +67,7 @@ export default class SessionRepository {
     limit?: number;
     page?: number;
   }) {
-    const { userId, skill, quest, date, limit = 20, page = 1 } = filters;
+    const { userId, skill, quest, date, limit, page = 1 } = filters;
 
     const where: Prisma.WorkSessionWhereInput = { 
       userId,
@@ -98,7 +100,7 @@ export default class SessionRepository {
       where.date = { gte: start, lte: end };
     }
 
-    const pageSize = Math.min(Math.max(Number(limit) || 20, 1), 100);
+    const pageSize = Math.min(Math.max(Number(limit) || this.DEFAULT_SESSION_LIMIT, 1), 100);
     const currentPage = Math.max(Number(page) || 1, 1);
     const offset = (currentPage - 1) * pageSize;
 

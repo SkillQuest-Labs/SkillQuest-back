@@ -134,7 +134,11 @@ export class SessionService {
       const userLevel = user.userStats?.level || 1;
       const currentXp = user.userStats?.xp || 0;
 
-      const questXpValues = data.completedQuests.map(quest => quest.xp);
+      // Récupérer les quêtes avec leurs valeurs XP depuis la base de données
+      const questIds = data.completedQuests.map(quest => quest.id);
+      const quests = await this.questRepository.findByIds(questIds);
+      const questXpValues = quests.map(quest => quest.xp || 0); // Utiliser 0 si xp est null
+      
       const sessionData: SessionValidationData = {
         duration: session.duration,
         questsCompleted: data.completedQuests.length,
@@ -147,8 +151,7 @@ export class SessionService {
 
       await this.userRepository.update(userId, xpResult.xpGained, xpResult.newLevel);
 
-      const questIds = data.completedQuests.map(quest => quest.id);
-      await this.questRepository.updateQuestStatuses(questIds);
+      await this.questRepository.updateQuestStatus(questIds);
 
       await this.sessionRepository.validateSession(data.sessionId);
 

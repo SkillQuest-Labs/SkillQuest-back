@@ -50,6 +50,14 @@ export class QuestRepository {
     return quest;
   }
 
+  async findByIds(ids: string[]) {
+    const quests = await this.prisma.quest.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, xp: true },
+    });
+    return quests;
+  }
+
   async update(questId: string, quest: Prisma.QuestUpdateInput) {
     return this.prisma.quest.update({
       where: { id: questId },
@@ -92,7 +100,7 @@ export class QuestRepository {
     return this.prisma.quest.deleteMany({ where });
   }
 
-  async updateQuestStatuses(questIds: string[]) {
+  async updateQuestStatus(questIds: string[]) {
     return this.prisma.quest.updateMany({
       where: {
         id: { in: questIds },

@@ -14,13 +14,11 @@ export class ListSessionsQueryDto {
   @IsString()
   date?: string;
 
-  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  limit: number = 20;
+  limit: number = 10;
 
-  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)

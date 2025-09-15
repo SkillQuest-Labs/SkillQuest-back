@@ -7,9 +7,6 @@ export class QuestData {
 
   @IsString()
   title: string;
-
-  @IsNumber()
-  xp: number;
 }
 
 export class ValidateSessionDto {
