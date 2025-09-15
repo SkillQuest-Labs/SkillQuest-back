@@ -168,7 +168,6 @@ model UserStats {
 model WorkSession {
   id              String   @id @default(uuid())
   title           String
-  description     String?
   color           String
   date            DateTime
   startTime       DateTime
