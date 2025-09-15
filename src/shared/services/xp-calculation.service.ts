@@ -78,4 +78,12 @@ export class XpCalculationService {
     const nextLevelXp = this.BASE_XP * Math.pow(currentLevel + 1, 2);
     return Math.max(0, nextLevelXp - currentXp);
   }
+
+  calculateXpThreshold(level: number): number {
+    return this.BASE_XP * Math.pow(level, 2);
+  }
+
+  calculateXpToNextLevelFromStats(currentXp: number, currentLevel: number): number {
+    return this.calculateXpToNextLevel(currentXp, currentLevel);
+  }
 }

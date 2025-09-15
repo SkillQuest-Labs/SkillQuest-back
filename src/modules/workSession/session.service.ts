@@ -31,7 +31,6 @@ export class SessionService {
       const sessionDuration = this.getSessionDuration({ startTime, endTime });
       return await this.sessionRepository.create({
         title: data.title,
-        description: data.description,
         color: data.color,
         date: new Date(data.startDate),
         startTime: startTime,
@@ -168,10 +167,14 @@ export class SessionService {
       const xpResult =
         this.xpCalculationService.calculateSessionXp(sessionData);
 
+      const xpThreshold = this.xpCalculationService.calculateXpThreshold(xpResult.newLevel + 1);
+
       await this.userRepository.update(
         userId,
         xpResult.xpGained,
         xpResult.newLevel,
+        xpThreshold,
+        xpResult.xpToNextLevel,
       );
 
       await this.updateQuestsFromCalculation(xpResult.questXpData);
