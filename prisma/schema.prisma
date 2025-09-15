@@ -23,6 +23,7 @@ enum SkillStatus {
 enum QuestStatus {
   LOCKED
   UNLOCKED
+  IN_PROGRESS
   COMPLETED
 }
 

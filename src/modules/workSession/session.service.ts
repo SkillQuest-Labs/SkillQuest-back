@@ -9,7 +9,7 @@ import { UpdateSessionDto } from './dto/update-session.dto';
 import { ListSessionsQueryDto } from './dto/list-sessions-query.dto';
 import { ValidateSessionDto } from './dto/validate-session.dto';
 import { XpCalculationService } from '../../shared/services/xp-calculation.service';
-import { SessionValidationData } from '../../shared/interfaces/xp-calculation.interface';
+import { SessionValidationData, QuestXpData } from '../../shared/interfaces/xp-calculation.interface';
 import { QuestRepository } from '../quest/quest.repository';
 import { UserRepository } from '../user/user.repository';
 
@@ -113,6 +113,17 @@ export class SessionService {
     return Math.floor(durationMs / 60000);
   }
 
+  private async updateQuestsFromCalculation(questXpData: QuestXpData[]) {
+    const questXpUpdates = questXpData.map(quest => ({
+      questId: quest.questId,
+      xpGained: quest.xpGained,
+    }));
+    await this.questRepository.incrementQuestXp(questXpUpdates);
+
+    for (const quest of questXpData) {
+      await this.questRepository.updateQuestStatusById(quest.questId, quest.status);
+    }
+  }
 
   async validateSession(data: ValidateSessionDto, userId: string) {
     try {
@@ -122,7 +133,9 @@ export class SessionService {
       }
 
       if (session.userId !== userId) {
-        throw new BadRequestException('You can only validate your own sessions');
+        throw new BadRequestException(
+          'You can only validate your own sessions',
+        );
       }
 
       const user = await this.userRepository.findUserWithStats(userId);
@@ -134,24 +147,32 @@ export class SessionService {
       const userLevel = user.userStats?.level || 1;
       const currentXp = user.userStats?.xp || 0;
 
-      // Récupérer les quêtes avec leurs valeurs XP depuis la base de données
-      const questIds = data.completedQuests.map(quest => quest.id);
-      const quests = await this.questRepository.findByIds(questIds);
-      const questXpValues = quests.map(quest => quest.xp || 0); // Utiliser 0 si xp est null
-      
+      const allQuestIds = session.quests.map(quest => quest.questId);
+      const allQuests = await this.questRepository.findByIds(allQuestIds);
+      const completedQuestIds = data.completedQuests.map(quest => quest.id);
+
       const sessionData: SessionValidationData = {
         duration: session.duration,
         questsCompleted: data.completedQuests.length,
         userLevel,
         currentXp,
-        questXpValues,
+        quests: allQuests.map(quest => ({
+          id: quest.id,
+          baseXp: quest.xp || 10,
+          isCompleted: completedQuestIds.includes(quest.id),
+        })),
       };
 
-      const xpResult = this.xpCalculationService.calculateSessionXp(sessionData);
+      const xpResult =
+        this.xpCalculationService.calculateSessionXp(sessionData);
 
-      await this.userRepository.update(userId, xpResult.xpGained, xpResult.newLevel);
+      await this.userRepository.update(
+        userId,
+        xpResult.xpGained,
+        xpResult.newLevel,
+      );
 
-      await this.questRepository.updateQuestStatus(questIds);
+      await this.updateQuestsFromCalculation(xpResult.questXpData);
 
       await this.sessionRepository.validateSession(data.sessionId);
 
@@ -162,7 +183,7 @@ export class SessionService {
         levelUp: xpResult.levelUp,
         xpToNextLevel: xpResult.xpToNextLevel,
         completedQuests: data.completedQuests,
-        message: xpResult.levelUp 
+        message: xpResult.levelUp
           ? `Félicitations ! Vous avez gagné ${xpResult.xpGained} XP et atteint le niveau ${xpResult.newLevel} !`
           : `Session validée ! Vous avez gagné ${xpResult.xpGained} XP.`,
       };
@@ -170,8 +191,9 @@ export class SessionService {
       if (error instanceof NotFoundException) {
         throw error;
       }
-      throw new BadRequestException(`Error validating session: ${error.message}`);
+      throw new BadRequestException(
+        `Error validating session: ${error.message}`,
+      );
     }
   }
-
 }

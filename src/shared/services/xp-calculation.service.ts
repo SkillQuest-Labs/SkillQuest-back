@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { XpCalculationResult, SessionValidationData } from '../interfaces/xp-calculation.interface';
+import { XpCalculationResult, SessionValidationData, QuestXpData } from '../interfaces/xp-calculation.interface';
 
 @Injectable()
 export class XpCalculationService {
@@ -8,7 +8,7 @@ export class XpCalculationService {
   private readonly MIN_SESSION_DURATION = 15;
 
   calculateSessionXp(data: SessionValidationData): XpCalculationResult {
-    const { duration, questsCompleted, userLevel, currentXp, questXpValues } = data;
+    const { duration, questsCompleted, userLevel, currentXp, quests } = data;
 
     if (duration < this.MIN_SESSION_DURATION) {
       return {
@@ -16,17 +16,43 @@ export class XpCalculationService {
         newLevel: userLevel,
         levelUp: false,
         xpToNextLevel: this.calculateXpToNextLevel(currentXp, userLevel),
+        questXpData: [],
       };
     }
 
     const durationXp = (duration / 60) * 10;
     
-    const questXp = questXpValues.reduce((sum, xp) => sum + xp, 0);
+    const questXpData: QuestXpData[] = quests.map(quest => {
+      const baseXp = quest.baseXp || 10;
+      const isCompleted = quest.isCompleted;
+      
+      let xpGained: number;
+      let status: 'IN_PROGRESS' | 'COMPLETED';
+      
+      if (isCompleted) {
+        const bonus = Math.floor(baseXp * 0.5);
+        xpGained = baseXp + bonus;
+        status = 'COMPLETED';
+      } else {
+        xpGained = baseXp;
+        status = 'IN_PROGRESS';
+      }
+      
+      return {
+        questId: quest.id,
+        baseXp,
+        isCompleted,
+        xpGained,
+        status,
+      };
+    });
+    
+    const totalQuestXp = questXpData.reduce((sum, quest) => sum + quest.xpGained, 0);
     
     const questBonus = 1 + (questsCompleted * this.QUEST_BONUS_MULTIPLIER);
     
     const xpGained = Math.floor(
-      (durationXp + questXp) * questBonus
+      (durationXp + totalQuestXp) * questBonus
     );
 
     const newTotalXp = currentXp + xpGained;
@@ -40,6 +66,7 @@ export class XpCalculationService {
       newLevel,
       levelUp,
       xpToNextLevel,
+      questXpData,
     };
   }
 
