@@ -15,4 +15,9 @@ export class UserController {
   async synchronizeUserData(@Body() userData: UserDto) {
     return this.userService.synchronizeUserData(userData);
   }
+
+  @Get(':userId/stats')
+  async getUserStats(@Param('userId') userId: string) {
+    return this.userService.getUserStats(userId);
+  }
 }
