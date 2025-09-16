@@ -31,7 +31,10 @@ export class SkillService {
   }
 
   async updateSkill(id: string, data: UpdateSkillDto) {
-    return this.skillRepository.update(id, data);
+    return this.skillRepository.update(id, {
+      ...data,
+      updatedAt: new Date(),
+    });
   }
 
   async deleteSkill(id: string) {
