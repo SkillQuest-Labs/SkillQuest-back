@@ -12,7 +12,7 @@ export class QuestService {
       questData.map(({ skillId, ...rest }) => {
         return this.questRepository.create({
           ...rest,
-          skill: { connect: { id: skillId } }, // to link to the existing skill
+          skill: { connect: { id: skillId } },
         });
       }),
     );

@@ -44,4 +44,25 @@ export default class SkillRepository {
       where: { id },
     });
   }
+
+  async updateSkillStats(skillId: string) {
+    const quests = await this.prisma.quest.findMany({
+      where: { skillId },
+      select: { 
+        xp: true, 
+        status: true 
+      },
+    });
+
+    const totalXp = quests.reduce((sum, quest) => sum + (quest.xp || 0), 0);
+    const completedQuests = quests.filter(quest => quest.status === 'COMPLETED').length;
+    
+    return this.prisma.skill.update({
+      where: { id: skillId },
+      data: {
+        totalXp,
+        completedQuests,
+      },
+    });
+  }
 }

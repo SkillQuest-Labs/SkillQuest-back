@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, QuestStatus } from '@prisma/client';
 import { PrismaService } from 'src/database/prisma/prisma.service';
 import { QuestRelationDto } from './dto/create-quest.dto';
 
@@ -50,6 +50,14 @@ export class QuestRepository {
     return quest;
   }
 
+  async findByIds(ids: string[]) {
+    const quests = await this.prisma.quest.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, xp: true },
+    });
+    return quests;
+  }
+
   async update(questId: string, quest: Prisma.QuestUpdateInput) {
     return this.prisma.quest.update({
       where: { id: questId },
@@ -65,7 +73,6 @@ export class QuestRepository {
   }
 
   async deleteAll(skillId: string) {
-    // Get the skill name before deleting
     const [skill, deletedQuests] = await this.prisma.$transaction([
       this.prisma.skill.findUnique({
         where: { id: skillId },
@@ -90,5 +97,52 @@ export class QuestRepository {
 
   async deleteByFilter(where: Prisma.QuestWhereInput) {
     return this.prisma.quest.deleteMany({ where });
+  }
+
+  async updateQuestStatus(questIds: string[]) {
+    return this.prisma.quest.updateMany({
+      where: {
+        id: { in: questIds },
+      },
+      data: {
+        status: 'COMPLETED' as QuestStatus,
+        completionTime: new Date(),
+      },
+    });
+  }
+
+  async updateQuestStatusById(questId: string, status: 'IN_PROGRESS' | 'COMPLETED') {
+    const updateData: any = {
+      status: status as QuestStatus,
+    };
+
+    if (status === 'COMPLETED') {
+      updateData.completionTime = new Date();
+    }
+
+    return this.prisma.quest.update({
+      where: { id: questId },
+      data: updateData,
+    });
+  }
+
+  async incrementQuestXp(questXpData: { questId: string; xpGained: number }[]) {
+    const updatePromises = questXpData.map(async ({ questId, xpGained }) => {
+      const quest = await this.prisma.quest.findUnique({
+        where: { id: questId },
+        select: { xp: true },
+      });
+
+      const newXp = quest?.xp === null ? xpGained : (quest?.xp || 0) + xpGained;
+
+      return this.prisma.quest.update({
+        where: { id: questId },
+        data: {
+          xp: newXp,
+        },
+      });
+    });
+    
+    return Promise.all(updatePromises);
   }
 }

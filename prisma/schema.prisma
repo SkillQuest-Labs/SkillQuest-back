@@ -23,6 +23,7 @@ enum SkillStatus {
 enum QuestStatus {
   LOCKED
   UNLOCKED
+  IN_PROGRESS
   COMPLETED
 }
 
@@ -153,6 +154,8 @@ model UserStats {
   rp               Int?
   level            Int @default(1)
   totalXp          Int?
+  xpThreshold      Int @default(100)
+  xpToNextLevel    Int @default(100)
   loginStreak      Int?
   maxSessionStreak Int?
   userId           String @unique
@@ -172,6 +175,7 @@ model WorkSession {
   createdAt       DateTime
   difficultyScore Int?
   focusLevel      Int?
+  isValidated     Boolean  @default(false)
   userId          String
   linkedSkillId   String
 

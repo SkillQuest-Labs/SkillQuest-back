@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
@@ -11,6 +11,8 @@ import { QuestModule } from './modules/quest/quest.module';
 import { UserModule } from './modules/user/user.module';
 import { SkillModule } from './modules/skill/skill.module';
 import { SessionModule } from './modules/workSession/session.module';
+import { requireAuth } from '@clerk/express';
+import { SessionController } from './modules/workSession/session.controller';
 
 @Module({
   imports: [
@@ -48,4 +50,8 @@ import { SessionModule } from './modules/workSession/session.module';
   controllers: [AppController],
   providers: [AppService, AppConfigService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(requireAuth()).forRoutes(SessionController);
+  }
+}

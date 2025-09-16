@@ -6,10 +6,14 @@ import {
   Get,
   Delete,
   Put,
+  Query,
 } from '@nestjs/common';
 import { SessionService } from './session.service';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
+import { ListSessionsQueryDto } from './dto/list-sessions-query.dto';
+import { ValidateSessionDto } from './dto/validate-session.dto';
+import { UserId } from 'src/shared/services/decorators/user-id.decorator';
 
 @Controller('sessions')
 export class SessionController {
@@ -30,6 +34,11 @@ export class SessionController {
     return this.sessionService.deleteSession(id);
   }
 
+  @Get('filter')
+  listSessions(@UserId() userId: string, @Query() query: ListSessionsQueryDto) {
+    return this.sessionService.listSessions({ ...query, userId });
+  }
+
   @Get(':id')
   async getSessionById(@Param('id') id: string) {
     return this.sessionService.getSessionById(id);
@@ -38,5 +47,10 @@ export class SessionController {
   @Put(':id')
   async updateSession(@Param('id') id: string, @Body() data: UpdateSessionDto) {
     return this.sessionService.updateSession(id, data);
+  }
+
+  @Post('validate')
+  async validateSession(@UserId() userId: string, @Body() data: ValidateSessionDto) {
+    return this.sessionService.validateSession(data, userId);
   }
 }
