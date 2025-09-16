@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { UserDto } from './dto/user.dto';
+import { UserStatsDto } from './dto/user-stats.dto';
 
 @Injectable()
 export class UserService {
@@ -38,5 +39,20 @@ export class UserService {
     };
 
     return this.userRepository.create(newUser);
+  }
+
+  async getUserStats(userId: string): Promise<UserStatsDto> {
+    const userStats = await this.userRepository.findUserStats(userId);
+
+    if (!userStats) {
+      throw new Error('User stats not found');
+    }
+
+    return {
+      level: userStats.level,
+      totalXP: userStats.xp ?? 0,
+      xpTheshold: userStats.xpThreshold,
+      xpToNextLevel: userStats.xpToNextLevel,
+    };
   }
 }

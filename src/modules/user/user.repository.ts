@@ -55,4 +55,10 @@ export class UserRepository {
       include: { userStats: true },
     });
   }
+
+  async findUserStats(userId: string) {
+    return this.prisma.userStats.findUnique({
+      where: { userId },
+    });
+  }
 }
