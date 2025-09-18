@@ -9,7 +9,10 @@ import { UpdateSessionDto } from './dto/update-session.dto';
 import { ListSessionsQueryDto } from './dto/list-sessions-query.dto';
 import { ValidateSessionDto } from './dto/validate-session.dto';
 import { XpCalculationService } from '../../shared/services/xp-calculation.service';
-import { SessionValidationData, QuestXpData } from '../../shared/interfaces/xp-calculation.interface';
+import {
+  SessionValidationData,
+  QuestXpData,
+} from '../../shared/interfaces/xp-calculation.interface';
 import { QuestRepository } from '../quest/quest.repository';
 import { UserRepository } from '../user/user.repository';
 import SkillRepository from '../skill/skill.repository';
@@ -64,7 +67,6 @@ export class SessionService {
 
       return await this.sessionRepository.update(id, {
         title: data.title,
-        description: data.description,
         color: data.color,
         date: new Date(data.startDate),
         startTime: startTime,
@@ -115,14 +117,17 @@ export class SessionService {
   }
 
   private async updateQuestsFromCalculation(questXpData: QuestXpData[]) {
-    const questXpUpdates = questXpData.map(quest => ({
+    const questXpUpdates = questXpData.map((quest) => ({
       questId: quest.questId,
       xpGained: quest.xpGained,
     }));
     await this.questRepository.incrementQuestXp(questXpUpdates);
 
     for (const quest of questXpData) {
-      await this.questRepository.updateQuestStatusById(quest.questId, quest.status);
+      await this.questRepository.updateQuestStatusById(
+        quest.questId,
+        quest.status,
+      );
     }
   }
 
@@ -148,16 +153,16 @@ export class SessionService {
       const userLevel = user.userStats?.level || 1;
       const currentXp = user.userStats?.xp || 0;
 
-      const allQuestIds = session.quests.map(quest => quest.questId);
+      const allQuestIds = session.quests.map((quest) => quest.questId);
       const allQuests = await this.questRepository.findByIds(allQuestIds);
-      const completedQuestIds = data.completedQuests.map(quest => quest.id);
+      const completedQuestIds = data.completedQuests.map((quest) => quest.id);
 
       const sessionData: SessionValidationData = {
         duration: session.duration,
         questsCompleted: data.completedQuests.length,
         userLevel,
         currentXp,
-        quests: allQuests.map(quest => ({
+        quests: allQuests.map((quest) => ({
           id: quest.id,
           baseXp: quest.xp || 10,
           isCompleted: completedQuestIds.includes(quest.id),

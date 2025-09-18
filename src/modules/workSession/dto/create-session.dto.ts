@@ -1,7 +1,6 @@
 import {
   IsArray,
   IsDateString,
-  IsOptional,
   IsString,
   Matches,
 } from 'class-validator';
@@ -9,10 +8,6 @@ import {
 export class CreateSessionDto {
   @IsString()
   title: string;
-
-  @IsOptional()
-  @IsString()
-  description?: string;
 
   @IsString()
   @Matches(/^#([0-9A-Fa-f]{6})$/)
