@@ -177,6 +177,8 @@ model WorkSession {
   difficultyScore Int?
   focusLevel      Int?
   isValidated     Boolean  @default(false)
+  totalXpEarned   Int @default(0)
+
   userId          String
   linkedSkillId   String
 

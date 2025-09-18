@@ -98,8 +98,8 @@ export class SessionService {
     }
   }
 
-  async getSessionsByUser(userId: string) {
-    return this.sessionRepository.findByUserId(userId);
+  async getSessionsByUser(userId: string, isValidated: boolean) {
+    return this.sessionRepository.findByUserId(userId, isValidated);
   }
 
   async getSessionById(id: string) {
@@ -172,7 +172,9 @@ export class SessionService {
       const xpResult =
         this.xpCalculationService.calculateSessionXp(sessionData);
 
-      const xpThreshold = this.xpCalculationService.calculateXpThreshold(xpResult.newLevel + 1);
+      const xpThreshold = this.xpCalculationService.calculateXpThreshold(
+        xpResult.newLevel + 1,
+      );
 
       await this.userRepository.update(
         userId,
@@ -184,7 +186,7 @@ export class SessionService {
 
       await this.updateQuestsFromCalculation(xpResult.questXpData);
 
-      await this.sessionRepository.validateSession(data.sessionId);
+      await this.sessionRepository.validateSession(data.sessionId, xpResult.xpGained);
 
       await this.skillRepository.updateSkillStats(session.linkedSkillId);
 

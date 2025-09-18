@@ -24,11 +24,11 @@ export default class SessionRepository {
     });
   }
 
-  async findByUserId(userId: string) {
+  async findByUserId(userId: string, isValidated: boolean = false) {
     return this.prisma.workSession.findMany({
-      where: { 
+      where: {
         userId,
-        isValidated: false
+        isValidated: isValidated,
       },
       include: {
         quests: {
@@ -69,9 +69,9 @@ export default class SessionRepository {
   }) {
     const { userId, skill, quest, date, limit, page = 1 } = filters;
 
-    const where: Prisma.WorkSessionWhereInput = { 
+    const where: Prisma.WorkSessionWhereInput = {
       userId,
-      isValidated: false
+      isValidated: false,
     };
 
     const skillTerm = skill?.trim();
@@ -100,7 +100,10 @@ export default class SessionRepository {
       where.date = { gte: start, lte: end };
     }
 
-    const pageSize = Math.min(Math.max(Number(limit) || this.DEFAULT_SESSION_LIMIT, 1), 100);
+    const pageSize = Math.min(
+      Math.max(Number(limit) || this.DEFAULT_SESSION_LIMIT, 1),
+      100,
+    );
     const currentPage = Math.max(Number(page) || 1, 1);
     const offset = (currentPage - 1) * pageSize;
 
@@ -127,11 +130,13 @@ export default class SessionRepository {
     };
   }
 
-  async validateSession(sessionId: string) {
+  async validateSession(sessionId: string, xpGained: number) {
     return this.prisma.workSession.update({
       where: { id: sessionId },
-      data: { isValidated: true },
+      data: {
+        isValidated: true,
+        totalXpEarned: xpGained,
+      },
     });
   }
-
 }
