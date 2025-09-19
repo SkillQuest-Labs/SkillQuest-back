@@ -19,9 +19,11 @@ export interface SessionValidationData {
   questsCompleted: number;
   userLevel: number;
   currentXp: number;
+  isSessionValidated?: boolean;
   quests: {
     id: string;
     baseXp: number;
     isCompleted: boolean;
+    status?: string;
   }[];
 }

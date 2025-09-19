@@ -153,7 +153,7 @@ export class SessionService {
       const userLevel = user.userStats?.level || 1;
       const currentXp = user.userStats?.xp || 0;
 
-      const allQuestIds = session.quests.map((quest) => quest.questId);
+      const allQuestIds = session.quests.map((sessionQuest) => sessionQuest.questId);
       const allQuests = await this.questRepository.findByIds(allQuestIds);
       const completedQuestIds = data.completedQuests.map((quest) => quest.id);
 
@@ -162,10 +162,12 @@ export class SessionService {
         questsCompleted: data.completedQuests.length,
         userLevel,
         currentXp,
+        isSessionValidated: session.isValidated,
         quests: allQuests.map((quest) => ({
           id: quest.id,
           baseXp: quest.xp || 10,
           isCompleted: completedQuestIds.includes(quest.id),
+          status: quest.status,
         })),
       };
 
@@ -186,7 +188,9 @@ export class SessionService {
 
       await this.updateQuestsFromCalculation(xpResult.questXpData);
 
-      await this.sessionRepository.validateSession(data.sessionId, xpResult.xpGained);
+      if (!session.isValidated) {
+        await this.sessionRepository.validateSession(data.sessionId, xpResult.xpGained);
+      }
 
       await this.skillRepository.updateSkillStats(session.linkedSkillId);
 

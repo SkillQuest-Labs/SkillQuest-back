@@ -53,7 +53,7 @@ export class QuestRepository {
   async findByIds(ids: string[]) {
     const quests = await this.prisma.quest.findMany({
       where: { id: { in: ids } },
-      select: { id: true, xp: true },
+      select: { id: true, xp: true, status: true },
     });
     return quests;
   }
