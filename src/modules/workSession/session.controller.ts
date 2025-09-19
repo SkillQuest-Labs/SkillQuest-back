@@ -25,8 +25,12 @@ export class SessionController {
   }
 
   @Get('user/:userId')
-  async getSessionsByUser(@Param('userId') userId: string) {
-    return this.sessionService.getSessionsByUser(userId);
+  async getSessionsByUser(
+    @Param('userId') userId: string,
+    @Query('isValidated') isValidated: string,
+  ) {
+    const validated = isValidated === 'true';
+    return this.sessionService.getSessionsByUser(userId, validated);
   }
 
   @Delete(':id')
@@ -50,7 +54,10 @@ export class SessionController {
   }
 
   @Post('validate')
-  async validateSession(@UserId() userId: string, @Body() data: ValidateSessionDto) {
+  async validateSession(
+    @UserId() userId: string,
+    @Body() data: ValidateSessionDto,
+  ) {
     return this.sessionService.validateSession(data, userId);
   }
 }
