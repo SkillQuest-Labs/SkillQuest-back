@@ -27,10 +27,10 @@ export class SessionController {
   @Get('user/:userId')
   async getSessionsByUser(
     @Param('userId') userId: string,
-    @Query('isValidated') isValidated: string,
+    @Query('getAllSessions') getAllSessions?: string,
   ) {
-    const validated = isValidated === 'true';
-    return this.sessionService.getSessionsByUser(userId, validated);
+    const allSessions = getAllSessions ? getAllSessions === 'true' : false;
+    return this.sessionService.getSessionsByUser(userId, allSessions);
   }
 
   @Delete(':id')

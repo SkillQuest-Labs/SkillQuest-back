@@ -24,11 +24,11 @@ export default class SessionRepository {
     });
   }
 
-  async findByUserId(userId: string, isValidated: boolean = false) {
+  async findByUserId(userId: string, getAllSessions: boolean = false) {
     return this.prisma.workSession.findMany({
       where: {
         userId,
-        isValidated: isValidated,
+        ...(getAllSessions ? {} : { isValidated: false }),
       },
       include: {
         quests: {

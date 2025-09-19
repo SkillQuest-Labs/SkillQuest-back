@@ -98,8 +98,8 @@ export class SessionService {
     }
   }
 
-  async getSessionsByUser(userId: string, isValidated: boolean) {
-    return this.sessionRepository.findByUserId(userId, isValidated);
+  async getSessionsByUser(userId: string, getAllSessions: boolean = false) {
+    return this.sessionRepository.findByUserId(userId, getAllSessions);
   }
 
   async getSessionById(id: string) {
