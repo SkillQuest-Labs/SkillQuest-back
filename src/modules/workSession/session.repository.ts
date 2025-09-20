@@ -80,7 +80,7 @@ export default class SessionRepository {
 
     const where: Prisma.WorkSessionWhereInput = {
       userId,
-      ...(includeValidated ? {} : { isValidated: false }),
+      ...(includeValidated ? { isValidated: true } : { isValidated: false }),
     };
 
     const skillTerm = skill?.trim();
