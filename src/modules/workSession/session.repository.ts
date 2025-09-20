@@ -37,6 +37,7 @@ export default class SessionRepository {
               select: {
                 id: true,
                 title: true,
+                description: true,
                 status: true,
               }
             }
@@ -130,6 +131,7 @@ export default class SessionRepository {
                 select: {
                   id: true,
                   title: true,
+                  description: true,
                   status: true,
                 }
               }
