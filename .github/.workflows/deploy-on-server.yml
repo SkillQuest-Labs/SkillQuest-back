@@ -1,0 +1,29 @@
+name: Deploy to server
+
+on:
+  push:
+    branches:
+      - preprod
+#   pull_request:
+#     types: [opened, synchronize, reopened]
+#     branches:
+#       - preprod
+#       - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 51.15.229.53 >> ~/.ssh/known_hosts
+
+      - name: Deploy with rsync
+        run: |
+          rsync -avz --delete ./ johannes@51.15.229.53:/home/johannes/test/skill-quest-back/
