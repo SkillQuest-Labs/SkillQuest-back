@@ -3,7 +3,10 @@ import { Prisma, QuestStatus } from '@prisma/client';
 import { PrismaService } from 'src/database/prisma/prisma.service';
 import { QuestRelationDto } from './dto/create-quest.dto';
 
-const AVAILABLE_QUEST_STATUS: QuestStatus[] = [QuestStatus.UNLOCKED, QuestStatus.IN_PROGRESS];
+const AVAILABLE_QUEST_STATUS: QuestStatus[] = [
+  QuestStatus.UNLOCKED,
+  QuestStatus.IN_PROGRESS,
+];
 
 @Injectable()
 export class QuestRepository {
@@ -26,19 +29,13 @@ export class QuestRepository {
   async findAllBySkillId(skillId: string) {
     const [quests, total] = await this.prisma.$transaction([
       this.prisma.quest.findMany({
-        where: { 
+        where: {
           skillId,
-          status: {
-            in: AVAILABLE_QUEST_STATUS
-          }
         },
       }),
       this.prisma.quest.count({
-        where: { 
+        where: {
           skillId,
-          status: {
-            in: AVAILABLE_QUEST_STATUS
-          }
         },
       }),
     ]);
@@ -123,7 +120,10 @@ export class QuestRepository {
     });
   }
 
-  async updateQuestStatusById(questId: string, status: 'IN_PROGRESS' | 'COMPLETED') {
+  async updateQuestStatusById(
+    questId: string,
+    status: 'IN_PROGRESS' | 'COMPLETED',
+  ) {
     const updateData: any = {
       status: status as QuestStatus,
     };
@@ -154,7 +154,7 @@ export class QuestRepository {
         },
       });
     });
-    
+
     return Promise.all(updatePromises);
   }
 }
