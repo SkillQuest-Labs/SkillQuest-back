@@ -1,14 +1,14 @@
 name: Deploy to server
 
 on:
-  push:
+  # push:
+  #   branches:
+  #     - preprod
+
+  pull_request:
+    # types: [opened, synchronize, reopened]
     branches:
       - preprod
-#   pull_request:
-#     types: [opened, synchronize, reopened]
-#     branches:
-#       - preprod
-#       - main
 
 jobs:
   deploy:
@@ -26,4 +26,4 @@ jobs:
 
       - name: Deploy with rsync
         run: |
-          rsync -avz --delete ./ johannes@51.15.229.53:/home/johannes/test/skill-quest-back/
+          rsync -avz ./ johannes@51.15.229.53:/home/johannes/test/skill-quest-back/
