@@ -153,7 +153,9 @@ export class SessionService {
       const userLevel = user.userStats?.level || 1;
       const currentXp = user.userStats?.xp || 0;
 
-      const allQuestIds = session.quests.map((sessionQuest) => sessionQuest.questId);
+      const allQuestIds = session.quests.map(
+        (sessionQuest) => sessionQuest.questId,
+      );
       const allQuests = await this.questRepository.findByIds(allQuestIds);
       const completedQuestIds = data.completedQuests.map((quest) => quest.id);
 
@@ -167,7 +169,6 @@ export class SessionService {
           id: quest.id,
           baseXp: quest.xp || 10,
           isCompleted: completedQuestIds.includes(quest.id),
-          status: quest.status,
         })),
       };
 
@@ -189,7 +190,10 @@ export class SessionService {
       await this.updateQuestsFromCalculation(xpResult.questXpData);
 
       if (!session.isValidated) {
-        await this.sessionRepository.validateSession(data.sessionId, xpResult.xpGained);
+        await this.sessionRepository.validateSession(
+          data.sessionId,
+          xpResult.xpGained,
+        );
       }
 
       await this.skillRepository.updateSkillStats(session.linkedSkillId);
@@ -210,7 +214,7 @@ export class SessionService {
         throw error;
       }
       throw new BadRequestException(
-        `Error validating session: ${error.message}`,
+        `Error validating session: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }
