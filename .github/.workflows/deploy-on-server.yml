@@ -1,12 +1,7 @@
 name: Deploy to server
 
 on:
-  # push:
-  #   branches:
-  #     - preprod
-
   pull_request:
-    # types: [opened, synchronize, reopened]
     branches:
       - preprod
 
