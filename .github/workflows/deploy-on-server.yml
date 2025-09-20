@@ -2,12 +2,14 @@ name: Deploy to server
 
 on:
   pull_request:
+    types: [closed]
     branches:
       - preprod
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -21,4 +23,4 @@ jobs:
 
       - name: Deploy with rsync
         run: |
-          rsync -avz ./ johannes@51.15.229.53:/home/johannes/test/skill-quest-back/
+          rsync -avz ./ johannes@51.15.229.53:/home/johannes/prod/skill-quest-back/
