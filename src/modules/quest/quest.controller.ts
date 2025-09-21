@@ -46,6 +46,13 @@ export class QuestController {
     return { quests, questRelations, total };
   }
 
+  @Get(':skillId/sessions')
+  async getQuestsBySkillIdForSessions(@Param('skillId') skillId: string) {
+    const { quests, total } =
+      await this.questService.getQuestsBySkillIdForSessions(skillId);
+    return { quests, total };
+  }
+
   @Put()
   async updateQuest(
     @Body(new ParseArrayPipe({ items: UpdateQuestDto }))

@@ -50,6 +50,12 @@ export class QuestService {
     return { quests, questRelations, total };
   }
 
+  async getQuestsBySkillIdForSessions(skillId: string) {
+    const { quests, total } =
+      await this.questRepository.findValidatedQuestsBySkillId(skillId);
+    return { quests, total };
+  }
+
   async updateQuest(quest: UpdateQuestDto[]) {
     const updatedQuests = await Promise.all(
       quest.map(({ id, ...rest }) => {

@@ -98,8 +98,8 @@ export class SessionService {
     }
   }
 
-  async getSessionsByUser(userId: string, isValidated: boolean) {
-    return this.sessionRepository.findByUserId(userId, isValidated);
+  async getSessionsByUser(userId: string, getAllSessions: boolean = false) {
+    return this.sessionRepository.findByUserId(userId, getAllSessions);
   }
 
   async getSessionById(id: string) {
@@ -153,7 +153,9 @@ export class SessionService {
       const userLevel = user.userStats?.level || 1;
       const currentXp = user.userStats?.xp || 0;
 
-      const allQuestIds = session.quests.map((quest) => quest.questId);
+      const allQuestIds = session.quests.map(
+        (sessionQuest) => sessionQuest.questId,
+      );
       const allQuests = await this.questRepository.findByIds(allQuestIds);
       const completedQuestIds = data.completedQuests.map((quest) => quest.id);
 
@@ -162,6 +164,7 @@ export class SessionService {
         questsCompleted: data.completedQuests.length,
         userLevel,
         currentXp,
+        isSessionValidated: session.isValidated,
         quests: allQuests.map((quest) => ({
           id: quest.id,
           baseXp: quest.xp || 10,
@@ -186,7 +189,12 @@ export class SessionService {
 
       await this.updateQuestsFromCalculation(xpResult.questXpData);
 
-      await this.sessionRepository.validateSession(data.sessionId, xpResult.xpGained);
+      if (!session.isValidated) {
+        await this.sessionRepository.validateSession(
+          data.sessionId,
+          xpResult.xpGained,
+        );
+      }
 
       await this.skillRepository.updateSkillStats(session.linkedSkillId);
 
@@ -206,7 +214,7 @@ export class SessionService {
         throw error;
       }
       throw new BadRequestException(
-        `Error validating session: ${error.message}`,
+        `Error validating session: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }

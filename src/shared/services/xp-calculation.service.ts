@@ -8,7 +8,7 @@ export class XpCalculationService {
   private readonly MIN_SESSION_DURATION = 15;
 
   calculateSessionXp(data: SessionValidationData): XpCalculationResult {
-    const { duration, questsCompleted, userLevel, currentXp, quests } = data;
+    const { duration, questsCompleted, userLevel, currentXp, quests, isSessionValidated = false } = data;
 
     if (duration < this.MIN_SESSION_DURATION) {
       return {
@@ -22,7 +22,11 @@ export class XpCalculationService {
 
     const durationXp = (duration / 60) * 10;
     
-    const questXpData: QuestXpData[] = quests.map(quest => {
+    const questsToProcess = isSessionValidated 
+      ? quests.filter(quest => quest.isCompleted && quest.status !== 'COMPLETED')
+      : quests;
+    
+    const questXpData: QuestXpData[] = questsToProcess.map(quest => {
       const baseXp = quest.baseXp || 10;
       const isCompleted = quest.isCompleted;
       

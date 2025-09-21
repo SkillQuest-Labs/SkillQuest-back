@@ -24,15 +24,24 @@ export default class SessionRepository {
     });
   }
 
-  async findByUserId(userId: string, isValidated: boolean = false) {
+  async findByUserId(userId: string, getAllSessions: boolean = false) {
     return this.prisma.workSession.findMany({
       where: {
         userId,
-        isValidated: isValidated,
+        ...(getAllSessions ? {} : { isValidated: false }),
       },
       include: {
         quests: {
-          include: { quest: true },
+          include: { 
+            quest: {
+              select: {
+                id: true,
+                title: true,
+                description: true,
+                status: true,
+              }
+            }
+          },
         },
         linkedSkill: {
           select: {
@@ -66,12 +75,13 @@ export default class SessionRepository {
     date?: string;
     limit?: number;
     page?: number;
+    includeValidated?: boolean;
   }) {
-    const { userId, skill, quest, date, limit, page = 1 } = filters;
+    const { userId, skill, quest, date, limit, page = 1, includeValidated = false } = filters;
 
     const where: Prisma.WorkSessionWhereInput = {
       userId,
-      isValidated: false,
+      ...(includeValidated ? { isValidated: true } : { isValidated: false }),
     };
 
     const skillTerm = skill?.trim();
@@ -115,7 +125,18 @@ export default class SessionRepository {
         skip: offset,
         orderBy: [{ date: 'desc' }, { id: 'desc' }],
         include: {
-          quests: { include: { quest: true } },
+          quests: {
+            include: { 
+              quest: {
+                select: {
+                  id: true,
+                  title: true,
+                  description: true,
+                  status: true,
+                }
+              }
+            }
+          },
           linkedSkill: { select: { title: true } },
         },
       }),
