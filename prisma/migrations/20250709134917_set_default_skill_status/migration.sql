@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Skill" ALTER COLUMN "status" SET DEFAULT 'DRAFT';

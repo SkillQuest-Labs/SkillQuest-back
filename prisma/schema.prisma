@@ -1,0 +1,206 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum SkillStatus {
+  IN_PROGRESS
+  COMPLETED
+  NOT_STARTED
+  DRAFT
+}
+
+enum QuestStatus {
+  LOCKED
+  UNLOCKED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum ChallengeStatus {
+  IN_PROGRESS
+  VALIDED
+  EXPIRED
+}
+
+
+model User {
+  id         String   @id 
+  email      String
+  username   String
+  role       String
+  createdAt  DateTime
+  updatedAt  DateTime
+
+  skills         Skill[]
+  userTrophies   UserTrophy[]
+  userChallenges UserChallenge[]
+  userStats      UserStats?
+  workSessions   WorkSession[]
+  avatar         Avatar?
+}
+
+model Skill {
+  id                  String   @id @default(uuid())
+  skillId             String   @unique
+  title               String
+  description         String?
+  difficulty          Difficulty
+  completionTime DateTime?
+  status              SkillStatus @default(DRAFT)
+  userId              String
+  totalXp             Int @default(0)
+  completedQuests     Int @default(0)
+  averageQuestXp      Int @default(0)
+  color               String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quests Quest[]
+  
+  workSessions WorkSession[]
+  parentRelations QuestRelation[] @relation("ParentSkillQuestRelation")
+}
+
+model Quest {
+  id                 String      @id @default(uuid())
+  questId            String      @unique
+  title              String
+  description        String?
+  difficulty         Difficulty?
+  xp                 Int?
+  degree             Int?
+  status             QuestStatus @default(LOCKED)
+  isSubSkill         Boolean
+  completionTime     DateTime?
+  position           Json
+  connectionCount    Int         @default(0)
+  skillId            String
+
+  skill       Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  parentRelations QuestRelation[]  @relation("ChildQuest")
+  childRelations  QuestRelation[]  @relation("ParentQuest")
+  workSessionLinks WorkSessionQuest[]
+}
+
+
+model QuestRelation {
+  id              String @id @default(uuid())
+  questRelationId String @unique
+  parentSkillId   String?
+  parentQuestId   String?
+  childQuestId    String
+
+  parentQuest Quest? @relation("ParentQuest", fields: [parentQuestId], references: [questId], onDelete: Cascade)
+  parentSkill Skill? @relation("ParentSkillQuestRelation", fields: [parentSkillId], references: [skillId], onDelete: Cascade)
+  childQuest  Quest @relation("ChildQuest", fields: [childQuestId], references: [questId], onDelete: Cascade)
+}
+
+model Trophy {
+  id                  String   @id @default(uuid())
+  title               String
+  description         String
+  completionCondition String
+  xpReward            Int
+  rpReward            Int
+  createdAt           DateTime
+
+  userTrophies UserTrophy[]
+}
+
+model UserTrophy {
+  id        String   @id @default(uuid())
+  awardedAt DateTime
+  trophyId  String
+  userId    String?
+
+  trophy Trophy @relation(fields: [trophyId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Challenge {
+  id        String   @id @default(uuid())
+  title     String
+  xpReward  Int
+  rpReward  Int
+  createdAt DateTime
+  expiresAt DateTime
+
+  userChallenges UserChallenge[]
+}
+
+model UserChallenge {
+  id          String   @id @default(uuid())
+  status      ChallengeStatus
+  challengeId String
+  userId      String?
+
+  challenge Challenge @relation(fields: [challengeId], references: [id])
+  user      User?      @relation(fields: [userId], references: [id])
+}
+
+model UserStats {
+  id               String   @id @default(uuid())
+  xp               Int?
+  rp               Int?
+  level            Int @default(1)
+  totalXp          Int?
+  xpThreshold      Int @default(100)
+  xpToNextLevel    Int @default(100)
+  loginStreak      Int?
+  maxSessionStreak Int?
+  userId           String @unique
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WorkSession {
+  id              String   @id @default(uuid())
+  title           String
+  color           String
+  date            DateTime
+  startTime       DateTime
+  endTime         DateTime
+  duration        Int
+  createdAt       DateTime
+  difficultyScore Int?
+  focusLevel      Int?
+  isValidated     Boolean  @default(false)
+  totalXpEarned   Int @default(0)
+
+  userId          String
+  linkedSkillId   String
+
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  linkedSkill Skill             @relation(fields: [linkedSkillId], references: [id], onDelete: Cascade)
+  quests  WorkSessionQuest[]
+}
+
+
+model WorkSessionQuest {
+  id             String @id @default(uuid())
+  questId        String
+  workSessionId  String
+
+  quest        Quest?       @relation(fields: [questId], references: [id], onDelete: Cascade)
+  workSession  WorkSession? @relation(fields: [workSessionId], references: [id], onDelete: Cascade)
+}
+
+model Avatar {
+  id       String @id @default(uuid())
+  urlImage String?
+  userId   String? @unique
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

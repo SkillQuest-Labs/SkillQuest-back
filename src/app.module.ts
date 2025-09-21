@@ -1,0 +1,57 @@
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { AuthModule } from './modules/auth/auth.module';
+import { LoggerModule } from 'nestjs-pino';
+import * as pino from 'pino';
+import { ConfigModule } from '@nestjs/config';
+import { AppConfigService } from './shared/configuration/app-config.service';
+import { PrismaModule } from './database/prisma/prisma.module';
+import { QuestModule } from './modules/quest/quest.module';
+import { UserModule } from './modules/user/user.module';
+import { SkillModule } from './modules/skill/skill.module';
+import { SessionModule } from './modules/workSession/session.module';
+import { requireAuth } from '@clerk/express';
+import { SessionController } from './modules/workSession/session.controller';
+
+@Module({
+  imports: [
+    // for loading environment variables from .env files
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    LoggerModule.forRootAsync({
+      useFactory: () => {
+        return {
+          pinoHttp: {
+            level: 'trace',
+            useLevelLabels: true,
+            transport:
+              process.env.NODE_ENV === 'local'
+                ? { target: 'pino-pretty' }
+                : undefined,
+            serializers: {
+              err: pino.stdSerializers.err,
+              req: pino.stdSerializers.req,
+              res: pino.stdSerializers.res,
+            },
+            redact: ['req.headers.authorization'],
+          },
+        };
+      },
+    }),
+    AuthModule,
+    PrismaModule,
+    QuestModule,
+    UserModule,
+    SkillModule,
+    SessionModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService, AppConfigService],
+})
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(requireAuth()).forRoutes(SessionController);
+  }
+}

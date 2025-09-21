@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "public"."UserStats" ADD COLUMN     "xpThreshold" INTEGER NOT NULL DEFAULT 100,
+ADD COLUMN     "xpToNextLevel" INTEGER NOT NULL DEFAULT 100;
