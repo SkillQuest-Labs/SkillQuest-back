@@ -8,7 +8,21 @@ export class UserRepository {
 
   async create(userData: Prisma.UserCreateInput) {
     return this.prisma.user.create({
-      data: userData,
+      data: {
+        ...userData,
+        userStats: {
+          create: {
+            xp: 0,
+            rp: 0,
+            level: 1,
+            totalXp: 0,
+            xpThreshold: 100,
+            xpToNextLevel: 100,
+            loginStreak: 0,
+            maxSessionStreak: 0,
+          },
+        },
+      },
     });
   }
 
@@ -59,6 +73,24 @@ export class UserRepository {
   async findUserStats(userId: string) {
     return this.prisma.userStats.findUnique({
       where: { userId },
+    });
+  }
+
+  async createDefaultUserStats(userId: string) {
+    return this.prisma.userStats.upsert({
+      where: { userId },
+      update: {},
+      create: {
+        userId,
+        xp: 0,
+        rp: 0,
+        level: 1,
+        totalXp: 0,
+        xpThreshold: 100,
+        xpToNextLevel: 100,
+        loginStreak: 0,
+        maxSessionStreak: 0,
+      },
     });
   }
 }
