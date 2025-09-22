@@ -42,10 +42,9 @@ export class UserService {
   }
 
   async getUserStats(userId: string): Promise<UserStatsDto> {
-    const userStats = await this.userRepository.findUserStats(userId);
-
+    let userStats = await this.userRepository.findUserStats(userId);
     if (!userStats) {
-      throw new Error('User stats not found');
+      userStats = await this.userRepository.createDefaultUserStats(userId);
     }
 
     return {

@@ -134,11 +134,8 @@ export class SessionService {
   async validateSession(data: ValidateSessionDto, userId: string) {
     try {
       const session = await this.sessionRepository.findById(data.sessionId);
-      if (!session) {
-        throw new NotFoundException('Session not found');
-      }
 
-      if (session.userId !== userId) {
+      if (session?.userId !== userId) {
         throw new BadRequestException(
           'You can only validate your own sessions',
         );
